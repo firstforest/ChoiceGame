@@ -23,6 +23,7 @@ Elm.ChoiceGame.make = function (_elm) {
    var Mouse = Elm.Mouse.make(_elm);
    var Native = Native || {};
    Native.Ports = Elm.Native.Ports.make(_elm);
+   var Question = Elm.Question.make(_elm);
    var Signal = Elm.Signal.make(_elm);
    var String = Elm.String.make(_elm);
    var Text = Elm.Text.make(_elm);
@@ -65,30 +66,6 @@ Elm.ChoiceGame.make = function (_elm) {
       hoverButton(b),
       downButton(b));
    });
-   var sampleQuestions3 = _J.toList([{_: {}
-                                     ,noMessage: "no"
-                                     ,question: "6"
-                                     ,yesMessage: "hi"}
-                                    ,{_: {}
-                                     ,noMessage: "no"
-                                     ,question: "7"
-                                     ,yesMessage: "hi"}]);
-   var sampleQuestions2 = _J.toList([{_: {}
-                                     ,noMessage: "no"
-                                     ,question: "4"
-                                     ,yesMessage: "hi"}
-                                    ,{_: {}
-                                     ,noMessage: "no"
-                                     ,question: "5"
-                                     ,yesMessage: "hi"}]);
-   var sampleQuestions = _J.toList([{_: {}
-                                    ,noMessage: "no"
-                                    ,question: "2"
-                                    ,yesMessage: "hi"}
-                                   ,{_: {}
-                                    ,noMessage: "no"
-                                    ,question: "3"
-                                    ,yesMessage: "hi"}]);
    var Game = F9(function (a,
    b,
    c,
@@ -113,14 +90,6 @@ Elm.ChoiceGame.make = function (_elm) {
       return {_: {}
              ,decision: b
              ,text: a};
-   });
-   var Question = F3(function (a,
-   b,
-   c) {
-      return {_: {}
-             ,noMessage: c
-             ,question: a
-             ,yesMessage: b};
    });
    var Girl = function (a) {
       return {_: {},src: a};
@@ -150,16 +119,16 @@ Elm.ChoiceGame.make = function (_elm) {
          {case "A":
             return _U.replace([["phase",B]
                               ,["questions"
-                               ,sampleQuestions2]],
+                               ,Question.sampleQuestions2]],
               game);
             case "B":
             return _U.replace([["phase",C]
                               ,["questions"
-                               ,sampleQuestions3]],
+                               ,Question.sampleQuestions3]],
               game);}
          return _U.replace([["phase",C]
                            ,["questions"
-                            ,sampleQuestions3]],
+                            ,Question.sampleQuestions3]],
          game);
       }() : game;
    };
@@ -211,7 +180,7 @@ Elm.ChoiceGame.make = function (_elm) {
                                 ,decision: NO
                                 ,text: "いいえ"}
                      ,phase: A
-                     ,questions: sampleQuestions
+                     ,questions: Question.sampleQuestions
                      ,state: QUESTION
                      ,yesButton: {_: {}
                                  ,decision: YES
@@ -234,7 +203,7 @@ Elm.ChoiceGame.make = function (_elm) {
                                ,"img/choice2.jpg"]],
               girl);}
          _E.Case($moduleName,
-         "between lines 54 and 57");
+         "between lines 43 and 46");
       }();
    });
    var stepGame = F2(function (_v2,
@@ -273,10 +242,10 @@ Elm.ChoiceGame.make = function (_elm) {
                                                ,["girl",g]],
                                _v3);}
                           _E.Case($moduleName,
-                          "between lines 88 and 95");
+                          "between lines 77 and 84");
                        }();}
                   _E.Case($moduleName,
-                  "between lines 86 and 98");
+                  "between lines 75 and 87");
                }();
             }();
          }();
@@ -346,9 +315,6 @@ Elm.ChoiceGame.make = function (_elm) {
                             ,height: height
                             ,decision: decision
                             ,userInput: userInput
-                            ,sampleQuestions: sampleQuestions
-                            ,sampleQuestions2: sampleQuestions2
-                            ,sampleQuestions3: sampleQuestions3
                             ,defaultGame: defaultGame
                             ,stepGirl: stepGirl
                             ,stepState: stepState
@@ -380,7 +346,6 @@ Elm.ChoiceGame.make = function (_elm) {
                             ,UserInput: UserInput
                             ,Input: Input
                             ,Girl: Girl
-                            ,Question: Question
                             ,Button: Button
                             ,Game: Game};
    return _elm.ChoiceGame.values;

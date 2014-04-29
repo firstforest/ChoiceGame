@@ -2,6 +2,7 @@ module ChoiceGame where
 
 import Mouse
 import Graphics.Input
+import Question
 
 width = 320
 height = 480
@@ -22,31 +23,27 @@ data State = ANSWER | QUESTION
 
 type Girl = { src : String }
 
-type Question = { question : String, yesMessage : String, noMessage : String }
+type Question = Question.Question
 
 type Button = { text : String, decision : Decision }
 
 type Game = { phase : Phase, state:State, girl:Girl, yesButton : Button, noButton : Button,
   message : String, currentQuestion : Question, questions : [Question], musicPlay : Bool }
 
-sampleQuestions = [
-  {question = "2", yesMessage = "hi", noMessage = "no" },
-  {question = "3", yesMessage = "hi", noMessage = "no" }]
-
-sampleQuestions2 = [
-  {question = "4", yesMessage = "hi", noMessage = "no" },
-  {question = "5", yesMessage = "hi", noMessage = "no" }]
-
-sampleQuestions3 = [
-  {question = "6", yesMessage = "hi", noMessage = "no" },
-  {question = "7", yesMessage = "hi", noMessage = "no" }]
-
 defaultGame : Game
-defaultGame = {phase = A, state = QUESTION, girl = {src = "img/choice1.jpg"},
-  yesButton = {text = "はい", decision = YES }, noButton = {text = "いいえ", decision = NO },
-  message = "先輩、私のこと好きっスか？", questions = sampleQuestions,
-  currentQuestion =
-    {question = "先輩、私のこと好きっスか？", yesMessage = "hi", noMessage = "no" } , musicPlay = True }
+defaultGame = {
+  phase = A,
+  state = QUESTION,
+  girl = {src = "img/choice1.jpg"},
+  yesButton = {text = "はい", decision = YES },
+  noButton = {text = "いいえ", decision = NO },
+  message = "先輩、私のこと好きっスか？",
+  questions = Question.sampleQuestions,
+  currentQuestion = {
+    question = "先輩、私のこと好きっスか？",
+    yesMessage = "hi",
+    noMessage = "no" },
+  musicPlay = True }
 
 -- update --
 stepGirl : UserInput -> Girl -> Girl
@@ -61,9 +58,9 @@ stepState game =
   if (isEmpty game.questions)
     then
       case game.phase of
-        A -> { game | phase <- B, questions <- sampleQuestions2 }
-        B -> { game | phase <- C, questions <- sampleQuestions3 }
-        _ -> { game | phase <- C, questions <- sampleQuestions3 }
+        A -> { game | phase <- B, questions <- Question.sampleQuestions2 }
+        B -> { game | phase <- C, questions <- Question.sampleQuestions3 }
+        _ -> { game | phase <- C, questions <- Question.sampleQuestions3 }
     else game
 
 stepQuestion : Game -> Game
