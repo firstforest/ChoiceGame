@@ -1,3 +1,5 @@
+module ChoiceGame where
+
 import Mouse
 import Graphics.Input
 

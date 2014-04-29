@@ -1,0 +1,17 @@
+<html>
+<head>
+	<title>Choice Game</title>
+	<script type="text/javascript" src="http://elm-lang.org/elm-runtime.js"></script>
+	<script type="text/javascript" src="build/Main.js"></script>
+</head>
+
+  <body>
+    <h1>ChoiceGame</h1>
+    <div id="main" style="width:320px; height:480px;"></div>
+  </body>
+ 
+  <script type="text/javascript">
+    var mainDiv = document.getElementById('main');
+    Elm.embed(Elm.ChoiceGame, mainDiv);
+  </script>
+</html>
