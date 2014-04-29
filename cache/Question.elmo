@@ -42,13 +42,21 @@ Elm.Question.make = function (_elm) {
                                      ,question: "5"
                                      ,yesMessage: "hi"}]);
    var sampleQuestions = _J.toList([{_: {}
-                                    ,noMessage: "no"
-                                    ,question: "2"
-                                    ,yesMessage: "hi"}
+                                    ,noMessage: "せっかく新しい水着買ったのに……"
+                                    ,question: "海。海行きたくないスか？"
+                                    ,yesMessage: "下心ありそうな顔っスね"}
                                    ,{_: {}
-                                    ,noMessage: "no"
-                                    ,question: "3"
-                                    ,yesMessage: "hi"}]);
+                                    ,noMessage: "えー、猫派っスか。猫……にゃーん……"
+                                    ,question: "犬か猫かなら私、犬派なんス。先輩も犬派っスよね？"
+                                    ,yesMessage: "そうっスよね。先輩犬っぽいですもん"}
+                                   ,{_: {}
+                                    ,noMessage: "先輩の分も作っておいたのに……"
+                                    ,question: "プリン食べたいっスなぁ"
+                                    ,yesMessage: "実はここにひとつあるっス。半分こにするッス。スプーン？ ひとつしかないっスよ？"}
+                                   ,{_: {}
+                                    ,noMessage: "恥ずかしながらボロボロ泣いてしまったっス。おすすめっスよ"
+                                    ,question: "クレヨンしんちゃんの映画観たっスか？"
+                                    ,yesMessage: "最後ヤバかったスよねっ。なんだか他人ごとと思えなかったっス"}]);
    var Question = F3(function (a,
    b,
    c) {

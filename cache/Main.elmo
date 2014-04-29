@@ -169,12 +169,12 @@ Elm.ChoiceGame.make = function (_elm) {
    var YES = {ctor: "YES"};
    var defaultGame = {_: {}
                      ,currentQuestion: {_: {}
-                                       ,noMessage: "no"
-                                       ,question: "先輩、私のこと好きっスか？"
-                                       ,yesMessage: "hi"}
+                                       ,noMessage: "聞こえてるじゃないっスか"
+                                       ,question: "……ぱい……先輩っ！　聞こえてるっスか？"
+                                       ,yesMessage: "しっかりしてくださいっス"}
                      ,girl: {_: {}
                             ,src: "img/choice1.jpg"}
-                     ,message: "先輩、私のこと好きっスか？"
+                     ,message: "……ぱい……先輩っ！　聞こえてるっスか？"
                      ,musicPlay: true
                      ,noButton: {_: {}
                                 ,decision: NO
@@ -203,7 +203,7 @@ Elm.ChoiceGame.make = function (_elm) {
                                ,"img/choice2.jpg"]],
               girl);}
          _E.Case($moduleName,
-         "between lines 43 and 46");
+         "between lines 51 and 54");
       }();
    });
    var stepGame = F2(function (_v2,
@@ -242,10 +242,10 @@ Elm.ChoiceGame.make = function (_elm) {
                                                ,["girl",g]],
                                _v3);}
                           _E.Case($moduleName,
-                          "between lines 77 and 84");
+                          "between lines 85 and 92");
                        }();}
                   _E.Case($moduleName,
-                  "between lines 75 and 87");
+                  "between lines 83 and 95");
                }();
             }();
          }();

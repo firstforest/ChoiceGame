@@ -37,12 +37,12 @@ defaultGame = {
   girl = {src = "img/choice1.jpg"},
   yesButton = {text = "はい", decision = YES },
   noButton = {text = "いいえ", decision = NO },
-  message = "先輩、私のこと好きっスか？",
+  message = "……ぱい……先輩っ！　聞こえてるっスか？",
   questions = Question.sampleQuestions,
   currentQuestion = {
-    question = "先輩、私のこと好きっスか？",
-    yesMessage = "hi",
-    noMessage = "no" },
+    question = "……ぱい……先輩っ！　聞こえてるっスか？",
+    yesMessage = "しっかりしてくださいっス",
+    noMessage = "聞こえてるじゃないっスか" },
   musicPlay = True }
 
 -- update --
