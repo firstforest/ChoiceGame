@@ -65,6 +65,14 @@ Elm.ChoiceGame.make = function (_elm) {
       hoverButton(b),
       downButton(b));
    });
+   var sampleQuestions3 = _J.toList([{_: {}
+                                     ,noMessage: "no"
+                                     ,question: "6"
+                                     ,yesMessage: "hi"}
+                                    ,{_: {}
+                                     ,noMessage: "no"
+                                     ,question: "7"
+                                     ,yesMessage: "hi"}]);
    var sampleQuestions2 = _J.toList([{_: {}
                                      ,noMessage: "no"
                                      ,question: "4"
@@ -114,34 +122,50 @@ Elm.ChoiceGame.make = function (_elm) {
              ,question: a
              ,yesMessage: b};
    });
-   var Girl = F2(function (a,b) {
-      return {_: {}
-             ,hyoujou: a
-             ,src: b};
-   });
+   var Girl = function (a) {
+      return {_: {},src: a};
+   };
    var QUESTION = {ctor: "QUESTION"};
-   var ANSWER = {ctor: "ANSWER"};
-   var C = {ctor: "C"};
-   var B = {ctor: "B"};
-   var nextGame = function (game) {
+   var stepQuestion = function (game) {
       return function () {
-         var ng = List.isEmpty(game.questions) ? _U.replace([["phase"
-                                                             ,B]
-                                                            ,["questions"
-                                                             ,sampleQuestions2]],
-         game) : game;
-         var q = List.head(ng.questions);
+         var qs = List.tail(game.questions);
+         var q = List.head(game.questions);
          var message = q.question;
-         var qs = List.tail(ng.questions);
          return _U.replace([["state"
                             ,QUESTION]
                            ,["message",message]
                            ,["currentQuestion",q]
                            ,["questions",qs]],
-         ng);
+         game);
       }();
    };
+   var ANSWER = {ctor: "ANSWER"};
+   var C = {ctor: "C"};
+   var B = {ctor: "B"};
    var A = {ctor: "A"};
+   var stepState = function (game) {
+      return List.isEmpty(game.questions) ? function () {
+         var _v0 = game.phase;
+         switch (_v0.ctor)
+         {case "A":
+            return _U.replace([["phase",B]
+                              ,["questions"
+                               ,sampleQuestions2]],
+              game);
+            case "B":
+            return _U.replace([["phase",C]
+                              ,["questions"
+                               ,sampleQuestions3]],
+              game);}
+         return _U.replace([["phase",C]
+                           ,["questions"
+                            ,sampleQuestions3]],
+         game);
+      }() : game;
+   };
+   var nextGame = function ($) {
+      return stepQuestion(stepState($));
+   };
    var Input = F2(function (a,b) {
       return {_: {}
              ,timeDelta: a
@@ -180,7 +204,6 @@ Elm.ChoiceGame.make = function (_elm) {
                                        ,question: "先輩、私のこと好きっスか？"
                                        ,yesMessage: "hi"}
                      ,girl: {_: {}
-                            ,hyoujou: 1
                             ,src: "img/choice1.jpg"}
                      ,message: "先輩、私のこと好きっスか？"
                      ,musicPlay: true
@@ -196,8 +219,8 @@ Elm.ChoiceGame.make = function (_elm) {
    var stepGirl = F2(function (input,
    girl) {
       return function () {
-         var _v0 = input.decision;
-         switch (_v0.ctor)
+         var _v1 = input.decision;
+         switch (_v1.ctor)
          {case "NO":
             return _U.replace([["src"
                                ,"img/choice4.jpg"]],
@@ -211,49 +234,49 @@ Elm.ChoiceGame.make = function (_elm) {
                                ,"img/choice2.jpg"]],
               girl);}
          _E.Case($moduleName,
-         "between lines 50 and 53");
+         "between lines 54 and 57");
       }();
    });
-   var stepGame = F2(function (_v1,
-   _v2) {
+   var stepGame = F2(function (_v2,
+   _v3) {
       return function () {
          return function () {
             return function () {
                var g = A2(stepGirl,
-               _v1.userInput,
-               _v2.girl);
+               _v2.userInput,
+               _v3.girl);
                return function () {
-                  var _v5 = _v2.state;
-                  switch (_v5.ctor)
+                  var _v6 = _v3.state;
+                  switch (_v6.ctor)
                   {case "ANSWER":
-                     return _U.eq(_v1.userInput.decision,
+                     return _U.eq(_v2.userInput.decision,
                        NONE) ? nextGame(_U.replace([["girl"
                                                     ,g]],
-                       _v2)) : _v2;
+                       _v3)) : _v3;
                      case "QUESTION":
                      return function () {
-                          var _v6 = _v1.userInput.decision;
-                          switch (_v6.ctor)
+                          var _v7 = _v2.userInput.decision;
+                          switch (_v7.ctor)
                           {case "NO":
                              return _U.replace([["state"
                                                 ,ANSWER]
                                                ,["message"
-                                                ,_v2.currentQuestion.noMessage]
+                                                ,_v3.currentQuestion.noMessage]
                                                ,["girl",g]],
-                               _v2);
-                             case "NONE": return _v2;
+                               _v3);
+                             case "NONE": return _v3;
                              case "YES":
                              return _U.replace([["state"
                                                 ,ANSWER]
                                                ,["message"
-                                                ,_v2.currentQuestion.yesMessage]
+                                                ,_v3.currentQuestion.yesMessage]
                                                ,["girl",g]],
-                               _v2);}
+                               _v3);}
                           _E.Case($moduleName,
-                          "between lines 74 and 81");
+                          "between lines 88 and 95");
                        }();}
                   _E.Case($moduleName,
-                  "between lines 72 and 84");
+                  "between lines 86 and 98");
                }();
             }();
          }();
@@ -291,28 +314,28 @@ Elm.ChoiceGame.make = function (_elm) {
       280,
       80)(Text.leftAligned(Text.toText(message)))));
    };
-   var displayUI = function (_v7) {
+   var displayUI = function (_v8) {
       return function () {
          return A2(Graphics.Element.flow,
          Graphics.Element.down,
          _J.toList([A2(Graphics.Element.spacer,
                    width,
                    320)
-                   ,displayMessage(_v7.message)
+                   ,displayMessage(_v8.message)
                    ,A2(Graphics.Element.spacer,
                    width,
                    5)
                    ,A2(displayButtons,
-                   _v7.yesButton,
-                   _v7.noButton)]));
+                   _v8.yesButton,
+                   _v8.noButton)]));
       }();
    };
-   var display = function (_v9) {
+   var display = function (_v10) {
       return function () {
          return A2(Graphics.Input.clickable,
          decision.handle,
-         NONE)(Graphics.Element.layers(_J.toList([displayGirl(_v9.girl)
-                                                 ,displayUI(_v9)])));
+         NONE)(Graphics.Element.layers(_J.toList([displayGirl(_v10.girl)
+                                                 ,displayUI(_v10)])));
       }();
    };
    var main = A2(Signal.lift,
@@ -325,8 +348,11 @@ Elm.ChoiceGame.make = function (_elm) {
                             ,userInput: userInput
                             ,sampleQuestions: sampleQuestions
                             ,sampleQuestions2: sampleQuestions2
+                            ,sampleQuestions3: sampleQuestions3
                             ,defaultGame: defaultGame
                             ,stepGirl: stepGirl
+                            ,stepState: stepState
+                            ,stepQuestion: stepQuestion
                             ,nextGame: nextGame
                             ,stepGame: stepGame
                             ,colorButton: colorButton

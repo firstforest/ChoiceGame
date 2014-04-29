@@ -20,7 +20,7 @@ type Input = { timeDelta:Float, userInput:UserInput }
 data Phase = A | B | C
 data State = ANSWER | QUESTION
 
-type Girl = { hyoujou : Int, src : String }
+type Girl = { src : String }
 
 type Question = { question : String, yesMessage : String, noMessage : String }
 
@@ -37,8 +37,12 @@ sampleQuestions2 = [
   {question = "4", yesMessage = "hi", noMessage = "no" },
   {question = "5", yesMessage = "hi", noMessage = "no" }]
 
+sampleQuestions3 = [
+  {question = "6", yesMessage = "hi", noMessage = "no" },
+  {question = "7", yesMessage = "hi", noMessage = "no" }]
+
 defaultGame : Game
-defaultGame = {phase = A, state = QUESTION, girl = {hyoujou = 1, src = "img/choice1.jpg"},
+defaultGame = {phase = A, state = QUESTION, girl = {src = "img/choice1.jpg"},
   yesButton = {text = "はい", decision = YES }, noButton = {text = "いいえ", decision = NO },
   message = "先輩、私のこと好きっスか？", questions = sampleQuestions,
   currentQuestion =
@@ -52,17 +56,27 @@ stepGirl input girl =
     NO -> { girl | src <- "img/choice4.jpg" }
     NONE -> { girl | src <- "img/choice1.jpg" }
 
-nextGame : Game -> Game
-nextGame game =
+stepState : Game -> Game
+stepState game = 
+  if (isEmpty game.questions)
+    then
+      case game.phase of
+        A -> { game | phase <- B, questions <- sampleQuestions2 }
+        B -> { game | phase <- C, questions <- sampleQuestions3 }
+        _ -> { game | phase <- C, questions <- sampleQuestions3 }
+    else game
+
+stepQuestion : Game -> Game
+stepQuestion game =
   let
-    ng = if (isEmpty game.questions)
-           then { game | phase <- B, questions <- sampleQuestions2 }
-           else game
-    q = head ng.questions
-    qs = tail ng.questions
+    q = head game.questions
+    qs = tail game.questions
     message = q.question
   in
-    { ng | state <- QUESTION, message <- message, currentQuestion <- q, questions <- qs }
+    { game | state <- QUESTION, message <- message, currentQuestion <- q, questions <- qs }
+
+nextGame : Game -> Game
+nextGame = stepQuestion . stepState
 
 stepGame : Input -> Game -> Game
 stepGame ({ userInput } as input) ({ currentQuestion } as game) =
