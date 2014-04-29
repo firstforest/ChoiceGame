@@ -27,7 +27,7 @@ type Question = { question : String, yesMessage : String, noMessage : String }
 type Button = { text : String, decision : Decision }
 
 type Game = { phase : Phase, state:State, girl:Girl, yesButton : Button, noButton : Button,
-  message : String, currentQuestion : Question, questions : [Question]}
+  message : String, currentQuestion : Question, questions : [Question], musicPlay : Bool }
 
 sampleQuestions = [
   {question = "2", yesMessage = "hi", noMessage = "no" },
@@ -42,7 +42,7 @@ defaultGame = {phase = A, state = QUESTION, girl = {hyoujou = 1, src = "img/choi
   yesButton = {text = "はい", decision = YES }, noButton = {text = "いいえ", decision = NO },
   message = "先輩、私のこと好きっスか？", questions = sampleQuestions,
   currentQuestion =
-    {question = "先輩、私のこと好きっスか？", yesMessage = "hi", noMessage = "no" } }
+    {question = "先輩、私のこと好きっスか？", yesMessage = "hi", noMessage = "no" } , musicPlay = True }
 
 -- update --
 stepGirl : UserInput -> Girl -> Girl
@@ -145,3 +145,6 @@ input = sampleOn delta (lift2 Input delta userInput)
 gameState = foldp stepGame defaultGame input
 
 main = lift display gameState
+
+port jsMusicPlay : Signal Bool
+port jsMusicPlay = .musicPlay <~ gameState

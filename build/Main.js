@@ -81,18 +81,20 @@ Elm.ChoiceGame.make = function (_elm) {
                                     ,noMessage: "no"
                                     ,question: "3"
                                     ,yesMessage: "hi"}]);
-   var Game = F8(function (a,
+   var Game = F9(function (a,
    b,
    c,
    d,
    e,
    f,
    g,
-   h) {
+   h,
+   i) {
       return {_: {}
              ,currentQuestion: g
              ,girl: c
              ,message: f
+             ,musicPlay: i
              ,noButton: e
              ,phase: a
              ,questions: h
@@ -181,6 +183,7 @@ Elm.ChoiceGame.make = function (_elm) {
                             ,hyoujou: 1
                             ,src: "img/choice1.jpg"}
                      ,message: "先輩、私のこと好きっスか？"
+                     ,musicPlay: true
                      ,noButton: {_: {}
                                 ,decision: NO
                                 ,text: "いいえ"}
@@ -260,6 +263,15 @@ Elm.ChoiceGame.make = function (_elm) {
    stepGame,
    defaultGame,
    input);
+   var jsMusicPlay = Native.Ports.portOut("jsMusicPlay",
+   Native.Ports.outgoingSignal(function (v) {
+      return _J.fromBool(v);
+   }),
+   A2(Signal._op["<~"],
+   function (_) {
+      return _.musicPlay;
+   },
+   gameState));
    var height = 480;
    var width = 320;
    var displayGirl = function (girl) {

@@ -1,6 +1,7 @@
 <html>
 <head>
 	<title>Choice Game</title>
+	<meta charset="utf-8">
 	<script type="text/javascript" src="http://elm-lang.org/elm-runtime.js"></script>
 	<script type="text/javascript" src="build/Main.js"></script>
 </head>
@@ -12,6 +13,17 @@
  
   <script type="text/javascript">
     var mainDiv = document.getElementById('main');
-    Elm.embed(Elm.ChoiceGame, mainDiv);
+    var choiceGame = Elm.embed(Elm.ChoiceGame, mainDiv);
+    var music = new Audio();
+    music.src = "music/bgm.mp3";
+    
+    function playMusic (isPlay) {
+    	if (isPlay) {
+    		music.play();
+    	}
+    }
+ 
+	choiceGame.ports.jsMusicPlay.subscribe(playMusic);
+    
   </script>
 </html>
