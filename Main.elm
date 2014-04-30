@@ -2,7 +2,7 @@ module ChoiceGame where
 
 import Mouse
 import Graphics.Input
-import Question
+import Question (..)
 
 width = 320
 height = 480
@@ -23,8 +23,6 @@ data State = ANSWER | QUESTION
 
 type Girl = { src : String }
 
-type Question = Question.Question
-
 type Button = { text : String, decision : Decision }
 
 type Game = { phase : Phase, state:State, girl:Girl, yesButton : Button, noButton : Button,
@@ -38,7 +36,7 @@ defaultGame = {
   yesButton = {text = "はい", decision = YES },
   noButton = {text = "いいえ", decision = NO },
   message = "……ぱい……先輩っ！　聞こえてるっスか？",
-  questions = Question.sampleQuestions,
+  questions = sampleQuestions,
   currentQuestion = {
     question = "……ぱい……先輩っ！　聞こえてるっスか？",
     yesMessage = "しっかりしてくださいっス",
@@ -58,9 +56,9 @@ stepState game =
   if (isEmpty game.questions)
     then
       case game.phase of
-        A -> { game | phase <- B, questions <- Question.sampleQuestions2 }
-        B -> { game | phase <- C, questions <- Question.sampleQuestions3 }
-        _ -> { game | phase <- C, questions <- Question.sampleQuestions3 }
+        A -> { game | phase <- B, questions <- sampleQuestions2 }
+        B -> { game | phase <- C, questions <- sampleQuestions3 }
+        _ -> { game | phase <- C, questions <- sampleQuestions3 }
     else game
 
 stepQuestion : Game -> Game
