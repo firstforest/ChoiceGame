@@ -19,8 +19,6 @@ shuffle xs seed =
       in
         x :: (shuffle rest seed')
 
-nth : Int -> [Int] -> Int
 nth n xs = last (take n xs)
 
-dropN : Int -> [Int] -> [Int]
 dropN n xs = (take (n - 1) xs) ++ (drop n xs)
