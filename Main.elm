@@ -3,6 +3,7 @@ module ChoiceGame where
 import Mouse
 import Graphics.Input
 import Question (..)
+import Girl (..)
 
 width = 320
 height = 480
@@ -21,8 +22,6 @@ type Input = { timeDelta:Float, userInput:UserInput }
 data Phase = A | B | C
 data State = ANSWER | QUESTION
 
-type Girl = { src : String }
-
 type Button = { text : String, decision : Decision }
 
 type Game = { phase : Phase, state:State, girl:Girl, yesButton : Button, noButton : Button,
@@ -32,7 +31,7 @@ defaultGame : Game
 defaultGame = {
   phase = A,
   state = QUESTION,
-  girl = {src = "img/choice1.jpg"},
+  girl = { face = NATURAL },
   yesButton = {text = "はい", decision = YES },
   noButton = {text = "いいえ", decision = NO },
   message = "……ぱい……先輩っ！　聞こえてるっスか？",
@@ -40,16 +39,18 @@ defaultGame = {
   currentQuestion = {
     question = "……ぱい……先輩っ！　聞こえてるっスか？",
     yesMessage = "しっかりしてくださいっス",
-    noMessage = "聞こえてるじゃないっスか" },
+    yesFace = NIKORI,
+    noMessage = "聞こえてるじゃないっスか",
+    noFace = NIKORI },
   musicPlay = True }
 
 -- update --
-stepGirl : UserInput -> Girl -> Girl
-stepGirl input girl =
+stepGirl : UserInput -> Question -> Girl -> Girl
+stepGirl input question girl =
   case input.decision of
-    YES -> { girl | src <- "img/choice2.jpg" }
-    NO -> { girl | src <- "img/choice4.jpg" }
-    NONE -> { girl | src <- "img/choice1.jpg" }
+    YES -> { girl | face <- question.yesFace }
+    NO -> { girl | face <- question.noFace }
+    NONE -> { girl | face <- NATURAL }
 
 stepState : Game -> Game
 stepState game = 
@@ -76,7 +77,7 @@ nextGame = stepQuestion . stepState
 stepGame : Input -> Game -> Game
 stepGame ({ userInput } as input) ({ currentQuestion } as game) =
   let
-    g = stepGirl userInput game.girl
+    g = stepGirl userInput currentQuestion game.girl
   in
   case game.state of
     QUESTION ->
@@ -124,9 +125,17 @@ displayButtons yesButton noButton =
     displayButton decision.handle yesButton,
     displayButton decision.handle noButton
   ])
-  
+
+getGirlSrc : Face -> String
+getGirlSrc face =
+  case face of
+    NATURAL -> "img/natural.jpg"
+    NIKORI -> "img/nikori.jpg"
+    SYOBON -> "img/syobon.jpg"
+    ELTSU -> "img/eltsu.jpg"
+
 displayGirl : Girl -> Element
-displayGirl girl = image width height girl.src
+displayGirl girl = image width height (getGirlSrc girl.face)
 
 displayMessage : String -> Element
 displayMessage message =
