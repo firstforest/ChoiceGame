@@ -3,6 +3,7 @@ module ChoiceGame where
 import Mouse
 import Graphics.Input
 import Question (..)
+import Girl (..)
 
 width = 320
 height = 480
@@ -21,10 +22,6 @@ type Input = { timeDelta:Float, userInput:UserInput }
 data Phase = A | B | C
 data State = ANSWER | QUESTION
 
-data Face = NATURAL | NIKORI | SYOBON | ELTSU
-
-type Girl = { face : Face }
-
 type Button = { text : String, decision : Decision }
 
 type Game = { phase : Phase, state:State, girl:Girl, yesButton : Button, noButton : Button,
@@ -42,15 +39,17 @@ defaultGame = {
   currentQuestion = {
     question = "……ぱい……先輩っ！　聞こえてるっスか？",
     yesMessage = "しっかりしてくださいっス",
-    noMessage = "聞こえてるじゃないっスか" },
+    yesFace = NIKORI,
+    noMessage = "聞こえてるじゃないっスか",
+    noFace = NIKORI },
   musicPlay = True }
 
 -- update --
 stepGirl : UserInput -> Question -> Girl -> Girl
 stepGirl input question girl =
   case input.decision of
-    YES -> { girl | face <- NIKORI }
-    NO -> { girl | face <- SYOBON }
+    YES -> { girl | face <- question.yesFace }
+    NO -> { girl | face <- question.noFace }
     NONE -> { girl | face <- NATURAL }
 
 stepState : Game -> Game
