@@ -25,7 +25,7 @@ data State = ANSWER | QUESTION
 type Button = { text : String, decision : Decision }
 
 type Game = { phase : Phase, state:State, girl:Girl, yesButton : Button, noButton : Button,
-  message : String, currentQuestion : Question, questions : [Question], musicPlay : Bool }
+  message : String, currentQuestion : Question, questions : [Question], musicPlay : Bool, isClick : Bool }
 
 defaultGame : Game
 defaultGame = {
@@ -42,7 +42,8 @@ defaultGame = {
     yesFace = NIKORI,
     noMessage = "聞こえてるじゃないっスか",
     noFace = NIKORI },
-  musicPlay = True }
+  musicPlay = True,
+  isClick = False }
 
 -- update --
 stepGirl : UserInput -> Question -> Girl -> Girl
@@ -71,21 +72,25 @@ stepQuestion game =
   in
     { game | state <- QUESTION, message <- message, currentQuestion <- q, questions <- qs }
 
+clearClickSound : Game -> Game
+clearClickSound game = { game | isClick <- False }
+
 nextGame : Game -> Game
 nextGame = stepQuestion . stepState
 
 stepGame : Input -> Game -> Game
-stepGame ({ userInput } as input) ({ currentQuestion } as game) =
+stepGame ({ userInput } as input) ({ currentQuestion } as game') =
   let
     g = stepGirl userInput currentQuestion game.girl
+    game = clearClickSound game'
   in
   case game.state of
     QUESTION ->
       case userInput.decision of
         YES ->
-          { game | state <- ANSWER, message <- currentQuestion.yesMessage, girl <- g }
+          { game | state <- ANSWER, message <- currentQuestion.yesMessage, girl <- g, isClick <- True }
         NO ->
-          { game | state <- ANSWER, message <- currentQuestion.noMessage, girl <- g }
+          { game | state <- ANSWER, message <- currentQuestion.noMessage, girl <- g , isClick <- True }
         NONE ->
           game
     ANSWER ->
@@ -166,3 +171,6 @@ main = lift display gameState
 
 port jsMusicPlay : Signal Bool
 port jsMusicPlay = .musicPlay <~ gameState
+
+port jsPlayClickSound : Signal Bool
+port jsPlayClickSound = .isClick <~ gameState

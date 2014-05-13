@@ -22,8 +22,18 @@
     		music.play();
     	}
     }
+    
+    var click = new Audio();
+    click.src = "music/click.mp3";
+    
+    function playClickSound (isClick) {
+    	if (isClick) {
+    		click.play()
+    	}
+    }
  
 	choiceGame.ports.jsMusicPlay.subscribe(playMusic);
+	choiceGame.ports.jsPlayClickSound.subscribe(playClickSound);
     
   </script>
 </html>
