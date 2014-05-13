@@ -8,5 +8,8 @@
 
 使用素材
 --------
-* [BGM: 涼しい昼下がりのそぞろ速歩き](http://dova-s.jp/bgm/play471.html)
+以下の素材を使わせて頂いています。  
+楽曲素材の権利は各作者様にあります。
 
+* BGM: [涼しい昼下がりのそぞろ速歩き](http://dova-s.jp/bgm/play471.html)
+* Click音: [小森平の使い方](http://taira-komori.jpn.org/)
