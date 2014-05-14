@@ -17,7 +17,7 @@ decision = Graphics.Input.input NONE
 userInput : Signal UserInput
 userInput = UserInput <~ decision.signal
 
-type Input = { timeDelta:Float, userInput:UserInput }
+type Input = { userInput:UserInput }
 
 data Phase = A | B | C
 data State = ANSWER | QUESTION
@@ -84,19 +84,17 @@ stepGame ({ userInput } as input) ({ currentQuestion } as game') =
     g = stepGirl userInput currentQuestion game.girl
     game = clearClickSound game'
   in
-  case game.state of
-    QUESTION ->
-      case userInput.decision of
-        YES ->
-          { game | state <- ANSWER, message <- currentQuestion.yesMessage, girl <- g, isClick <- True }
-        NO ->
-          { game | state <- ANSWER, message <- currentQuestion.noMessage, girl <- g , isClick <- True }
-        NONE ->
-          game
-    ANSWER ->
-      if userInput.decision == NONE
-        then nextGame { game | girl <- g }
-        else game
+    case game.state of
+      QUESTION ->
+        case userInput.decision of
+          YES ->
+            { game | state <- ANSWER, message <- currentQuestion.yesMessage, girl <- g, isClick <- True }
+          NO ->
+            { game | state <- ANSWER, message <- currentQuestion.noMessage, girl <- g , isClick <- True }
+          NONE ->
+            game
+      ANSWER ->
+        nextGame { game | girl <- { g | face <- NATURAL } }
 
 -- display --
 colorButton : Color -> Button -> Element
@@ -162,8 +160,7 @@ display ({girl} as game) =
     displayGirl girl,
     displayUI game] |> Graphics.Input.clickable decision.handle NONE
 
-delta = fps 30
-input = sampleOn delta (lift2 Input delta userInput)
+input = lift Input userInput
 
 gameState = foldp stepGame defaultGame input
 
