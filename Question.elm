@@ -30,8 +30,8 @@ phaseCQuestions = [
     {question = "二人は寂しいスなぁ。……子作りするッス？", yesMessage = "冗談っスよ。エッチ", noMessage = "すまないっス。魅力なくてすまないっス。", yesFace = NIKORI, noFace = SYOBON},
     {question = "……", yesMessage = "なにが「はい」っスか。イエスマンも大概にするっス", noMessage = "なにが「いいえ」っスか。天邪鬼も大概にするっス", yesFace = NIKORI, noFace = SYOBON}]
 
-sampleQuestions = take 3 (Util.shuffle phaseAQuestions 1234313)
+sampleQuestions seed = take 3 (Util.shuffle phaseAQuestions seed)
 
-sampleQuestions2 = take 4 (Util.shuffle phaseBQuestions 15534324)
+sampleQuestions2 seed = take 4 (Util.shuffle phaseBQuestions seed)
 
-sampleQuestions3 = take 3 (Util.shuffle phaseCQuestions 5425234)
+sampleQuestions3 seed = take 3 (Util.shuffle phaseCQuestions seed)

@@ -4,18 +4,19 @@ import Mouse
 import Graphics.Input
 import Question (..)
 import Girl (..)
+import Random
 
 width = 320
 height = 480
 
 data Decision = YES | NO | NONE
-type UserInput = {decision : Decision}
+type UserInput = {decision : Decision, seed : Int}
 
 decision : Graphics.Input.Input Decision
 decision = Graphics.Input.input NONE
 
 userInput : Signal UserInput
-userInput = UserInput <~ decision.signal
+userInput = UserInput <~ decision.signal ~ Random.range -10000 10000 (constant 0)
 
 type Input = { userInput:UserInput }
 
@@ -35,7 +36,7 @@ defaultGame = {
   yesButton = {text = "はい", decision = YES },
   noButton = {text = "いいえ", decision = NO },
   message = "……ぱい……先輩っ！　聞こえてるっスか？",
-  questions = sampleQuestions,
+  questions = sampleQuestions 1,
   currentQuestion = {
     question = "……ぱい……先輩っ！　聞こえてるっスか？",
     yesMessage = "しっかりしてくださいっス",
@@ -53,14 +54,14 @@ stepGirl input question girl =
     NO -> { girl | face <- question.noFace }
     NONE -> { girl | face <- NATURAL }
 
-stepState : Game -> Game
-stepState game = 
+stepState : UserInput -> Game -> Game
+stepState { seed } game = 
   if (isEmpty game.questions)
     then
       case game.phase of
-        A -> { game | phase <- B, questions <- sampleQuestions2 }
-        B -> { game | phase <- C, questions <- sampleQuestions3 }
-        _ -> { game | phase <- C, questions <- sampleQuestions3 }
+        A -> { game | phase <- B, questions <- sampleQuestions2 seed }
+        B -> { game | phase <- C, questions <- sampleQuestions3 seed }
+        _ -> { game | phase <- C, questions <- sampleQuestions3 seed }
     else game
 
 stepQuestion : Game -> Game
@@ -75,8 +76,8 @@ stepQuestion game =
 clearClickSound : Game -> Game
 clearClickSound game = { game | isClick <- False }
 
-nextGame : Game -> Game
-nextGame = stepQuestion . stepState
+nextGame : UserInput -> Game -> Game
+nextGame userInput = stepQuestion . ( stepState userInput )
 
 stepGame : Input -> Game -> Game
 stepGame ({ userInput } as input) ({ currentQuestion } as game') =
@@ -94,7 +95,7 @@ stepGame ({ userInput } as input) ({ currentQuestion } as game') =
           NONE ->
             game
       ANSWER ->
-        nextGame { game | girl <- { g | face <- NATURAL } }
+        nextGame userInput { game | girl <- { g | face <- NATURAL } }
 
 -- display --
 colorButton : Color -> Button -> Element
