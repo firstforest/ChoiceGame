@@ -20,7 +20,7 @@ userInput = UserInput <~ decision.signal ~ Random.range -10000 10000 (constant 0
 
 type Input = { userInput:UserInput }
 
-data Phase = A | B | C
+data Phase = PROLOGUE | A | B | C
 data State = ANSWER | QUESTION
 
 type Button = { text : String, decision : Decision }
@@ -30,13 +30,13 @@ type Game = { phase : Phase, state:State, girl:Girl, yesButton : Button, noButto
 
 defaultGame : Game
 defaultGame = {
-  phase = A,
+  phase = PROLOGUE,
   state = QUESTION,
   girl = { face = NATURAL },
   yesButton = {text = "はい", decision = YES },
   noButton = {text = "いいえ", decision = NO },
   message = "……ぱい……先輩っ！　聞こえてるっスか？",
-  questions = sampleQuestions 1,
+  questions = prologueQuestions,
   currentQuestion = {
     question = "……ぱい……先輩っ！　聞こえてるっスか？",
     yesMessage = "しっかりしてくださいっス",
@@ -59,6 +59,7 @@ stepState { seed } game =
   if (isEmpty game.questions)
     then
       case game.phase of
+        PROLOGUE -> { game | phase <- A, questions <- sampleQuestions seed }
         A -> { game | phase <- B, questions <- sampleQuestions2 seed }
         B -> { game | phase <- C, questions <- sampleQuestions3 seed }
         _ -> { game | phase <- C, questions <- sampleQuestions3 seed }
