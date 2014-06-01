@@ -28,12 +28,22 @@
     
     function playClickSound (isClick) {
     	if (isClick) {
-    		click.play()
+    		click.play();
     	}
+    }
+
+    var levelUp = new Audio();
+    levelUp.src = "music/levelup.mp3";
+
+    function playLevelUpSound (isLevelUp) {
+        if (isLevelUp) {
+            levelUp.play();
+        }
     }
  
 	choiceGame.ports.jsMusicPlay.subscribe(playMusic);
 	choiceGame.ports.jsPlayClickSound.subscribe(playClickSound);
+    choiceGame.ports.jsPlayLevelUpSound.subscribe(playLevelUpSound);
     
   </script>
 </html>

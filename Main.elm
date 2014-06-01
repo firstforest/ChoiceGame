@@ -26,7 +26,7 @@ data State = ANSWER | QUESTION
 type Button = { text : String, decision : Decision }
 
 type Game = { phase : Phase, state:State, girl:Girl, yesButton : Button, noButton : Button,
-  message : String, currentQuestion : Question, questions : [Question], musicPlay : Bool, isClick : Bool }
+  message : String, currentQuestion : Question, questions : [Question], musicPlay : Bool, isClick : Bool , isLevelUp : Bool }
 
 defaultGame : Game
 defaultGame = {
@@ -44,7 +44,8 @@ defaultGame = {
     noMessage = "聞こえてるじゃないっスか",
     noFace = NIKORI },
   musicPlay = True,
-  isClick = False }
+  isClick = False,
+  isLevelUp = False }
 
 -- update --
 stepGirl : UserInput -> Question -> Girl -> Girl
@@ -59,10 +60,10 @@ stepState { seed } game =
   if (isEmpty game.questions)
     then
       case game.phase of
-        PROLOGUE -> { game | phase <- A, questions <- sampleQuestions seed }
-        A -> { game | phase <- B, questions <- sampleQuestions2 seed }
-        B -> { game | phase <- C, questions <- sampleQuestions3 seed }
-        _ -> { game | phase <- C, questions <- sampleQuestions3 seed }
+        PROLOGUE -> { game | phase <- A, questions <- sampleQuestions seed, isLevelUp <- True }
+        A -> { game | phase <- B, questions <- sampleQuestions2 seed, isLevelUp <- True }
+        B -> { game | phase <- C, questions <- sampleQuestions3 seed, isLevelUp <- True }
+        _ -> { game | phase <- C, questions <- sampleQuestions3 seed, isLevelUp <- True }
     else game
 
 stepQuestion : Game -> Game
@@ -77,6 +78,12 @@ stepQuestion game =
 clearClickSound : Game -> Game
 clearClickSound game = { game | isClick <- False }
 
+clearLevelUpSound : Game -> Game
+clearLevelUpSound game = { game | isLevelUp <- False }
+
+clearSound : Game -> Game
+clearSound = clearClickSound . clearLevelUpSound
+
 nextGame : UserInput -> Game -> Game
 nextGame userInput = stepQuestion . ( stepState userInput )
 
@@ -84,7 +91,7 @@ stepGame : Input -> Game -> Game
 stepGame ({ userInput } as input) ({ currentQuestion } as game') =
   let
     g = stepGirl userInput currentQuestion game.girl
-    game = clearClickSound game'
+    game = clearSound game'
   in
     case game.state of
       QUESTION ->
@@ -173,3 +180,6 @@ port jsMusicPlay = .musicPlay <~ gameState
 
 port jsPlayClickSound : Signal Bool
 port jsPlayClickSound = .isClick <~ gameState
+
+port jsPlayLevelUpSound : Signal Bool
+port jsPlayLevelUpSound = .isLevelUp <~ gameState
