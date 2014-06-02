@@ -18,7 +18,7 @@ decision = Graphics.Input.input NONE
 userInput : Signal UserInput
 userInput = UserInput <~ decision.signal ~ Random.range -10000 10000 (constant 0)
 
-type Input = { userInput:UserInput }
+type Input = { userInput : UserInput , point : Int}
 
 data Phase = PROLOGUE | A | B | C
 data State = ANSWER | QUESTION
@@ -89,7 +89,7 @@ nextGame : UserInput -> Game -> Game
 nextGame userInput = stepQuestion . ( stepState userInput )
 
 stepGame : Input -> Game -> Game
-stepGame ({ userInput } as input) ({ currentQuestion } as game') =
+stepGame ({ userInput , point } as input) ({ currentQuestion } as game') =
   let
     g = stepGirl userInput currentQuestion game.girl
     game = clearSound game'
@@ -98,9 +98,9 @@ stepGame ({ userInput } as input) ({ currentQuestion } as game') =
       QUESTION ->
         case userInput.decision of
           YES ->
-            { game | state <- ANSWER, message <- currentQuestion.yesMessage, girl <- g, isClick <- True }
+            { game | state <- ANSWER, message <- currentQuestion.yesMessage, girl <- g, isClick <- True, score <- game.score + point }
           NO ->
-            { game | state <- ANSWER, message <- currentQuestion.noMessage, girl <- g , isClick <- True }
+            { game | state <- ANSWER, message <- currentQuestion.noMessage, girl <- g , isClick <- True, score <- game.score + point }
           NONE ->
             game
       ANSWER ->
@@ -191,7 +191,7 @@ display ({girl} as game) =
     displayGirl girl,
     displayUI game] |> Graphics.Input.clickable decision.handle NONE
 
-input = lift Input userInput
+input = lift2 Input userInput (Random.range 30 40 userInput)
 
 gameState = foldp stepGame defaultGame input
 
