@@ -4,45 +4,49 @@ import Mouse
 import Graphics.Input
 import Question (..)
 import Girl (..)
+import Random
 
 width = 320
 height = 480
 
 data Decision = YES | NO | NONE
-type UserInput = {decision : Decision}
+type UserInput = {decision : Decision, seed : Int}
 
 decision : Graphics.Input.Input Decision
 decision = Graphics.Input.input NONE
 
 userInput : Signal UserInput
-userInput = UserInput <~ decision.signal
+userInput = UserInput <~ decision.signal ~ Random.range -10000 10000 (constant 0)
 
-type Input = { timeDelta:Float, userInput:UserInput }
+type Input = { userInput : UserInput , point : Int}
 
-data Phase = A | B | C
+data Phase = PROLOGUE | A | B | C
 data State = ANSWER | QUESTION
 
 type Button = { text : String, decision : Decision }
 
 type Game = { phase : Phase, state:State, girl:Girl, yesButton : Button, noButton : Button,
-  message : String, currentQuestion : Question, questions : [Question], musicPlay : Bool }
+  message : String, currentQuestion : Question, questions : [Question], musicPlay : Bool, isClick : Bool, isLevelUp : Bool, score : Int }
 
 defaultGame : Game
 defaultGame = {
-  phase = A,
+  phase = PROLOGUE,
   state = QUESTION,
   girl = { face = NATURAL },
   yesButton = {text = "はい", decision = YES },
   noButton = {text = "いいえ", decision = NO },
   message = "……ぱい……先輩っ！　聞こえてるっスか？",
-  questions = sampleQuestions,
+  questions = prologueQuestions,
   currentQuestion = {
     question = "……ぱい……先輩っ！　聞こえてるっスか？",
     yesMessage = "しっかりしてくださいっス",
     yesFace = NIKORI,
     noMessage = "聞こえてるじゃないっスか",
     noFace = NIKORI },
-  musicPlay = True }
+  musicPlay = True,
+  isClick = False,
+  isLevelUp = False,
+  score = 0 }
 
 -- update --
 stepGirl : UserInput -> Question -> Girl -> Girl
@@ -52,14 +56,15 @@ stepGirl input question girl =
     NO -> { girl | face <- question.noFace }
     NONE -> { girl | face <- NATURAL }
 
-stepState : Game -> Game
-stepState game = 
+stepState : UserInput -> Game -> Game
+stepState { seed } game = 
   if (isEmpty game.questions)
     then
       case game.phase of
-        A -> { game | phase <- B, questions <- sampleQuestions2 }
-        B -> { game | phase <- C, questions <- sampleQuestions3 }
-        _ -> { game | phase <- C, questions <- sampleQuestions3 }
+        PROLOGUE -> { game | phase <- A, questions <- sampleQuestions seed, isLevelUp <- True }
+        A -> { game | phase <- B, questions <- sampleQuestions2 seed, isLevelUp <- True }
+        B -> { game | phase <- C, questions <- sampleQuestions3 seed, isLevelUp <- True }
+        _ -> { game | phase <- C, questions <- sampleQuestions3 seed, isLevelUp <- True }
     else game
 
 stepQuestion : Game -> Game
@@ -71,27 +76,35 @@ stepQuestion game =
   in
     { game | state <- QUESTION, message <- message, currentQuestion <- q, questions <- qs }
 
-nextGame : Game -> Game
-nextGame = stepQuestion . stepState
+clearClickSound : Game -> Game
+clearClickSound game = { game | isClick <- False }
+
+clearLevelUpSound : Game -> Game
+clearLevelUpSound game = { game | isLevelUp <- False }
+
+clearSound : Game -> Game
+clearSound = clearClickSound . clearLevelUpSound
+
+nextGame : UserInput -> Game -> Game
+nextGame userInput = stepQuestion . ( stepState userInput )
 
 stepGame : Input -> Game -> Game
-stepGame ({ userInput } as input) ({ currentQuestion } as game) =
+stepGame ({ userInput , point } as input) ({ currentQuestion } as game') =
   let
     g = stepGirl userInput currentQuestion game.girl
+    game = clearSound game'
   in
-  case game.state of
-    QUESTION ->
-      case userInput.decision of
-        YES ->
-          { game | state <- ANSWER, message <- currentQuestion.yesMessage, girl <- g }
-        NO ->
-          { game | state <- ANSWER, message <- currentQuestion.noMessage, girl <- g }
-        NONE ->
-          game
-    ANSWER ->
-      if userInput.decision == NONE
-        then nextGame { game | girl <- g }
-        else game
+    case game.state of
+      QUESTION ->
+        case userInput.decision of
+          YES ->
+            { game | state <- ANSWER, message <- currentQuestion.yesMessage, girl <- g, isClick <- True, score <- game.score + point }
+          NO ->
+            { game | state <- ANSWER, message <- currentQuestion.noMessage, girl <- g , isClick <- True, score <- game.score + point }
+          NONE ->
+            game
+      ANSWER ->
+        nextGame userInput { game | girl <- { g | face <- NATURAL } }
 
 -- display --
 colorButton : Color -> Button -> Element
@@ -143,10 +156,31 @@ displayMessage message =
   (container width 100 middle
   (toText message |> leftAligned |> size 280 80))
 
+displayPhase : Phase -> Element
+displayPhase phase =
+  let
+    stars =
+      case phase of
+        A -> "★"
+        B -> "★★"
+        C -> "★★★"
+        _ -> ""
+  in
+    (container width 30 middle
+    (toText stars |> leftAligned |> size 280 30))
+
+displayScore : Int -> Element
+displayScore score =
+    (container width 30 middle
+    (toText (show score) |> leftAligned |> size 280 30))
+
 displayUI : Game -> Element
-displayUI ({yesButton, noButton, message} as game) =
+displayUI ({yesButton, noButton, message, phase, score} as game) =
   flow down [
-    (spacer width 320), 
+    (spacer width 10), 
+    (displayScore score),
+    (displayPhase phase),
+    (spacer width 280), 
     displayMessage message ,
     (spacer width 5),
     displayButtons yesButton noButton]
@@ -157,8 +191,7 @@ display ({girl} as game) =
     displayGirl girl,
     displayUI game] |> Graphics.Input.clickable decision.handle NONE
 
-delta = fps 30
-input = sampleOn delta (lift2 Input delta userInput)
+input = lift2 Input userInput (Random.range 30 40 userInput)
 
 gameState = foldp stepGame defaultGame input
 
@@ -166,3 +199,9 @@ main = lift display gameState
 
 port jsMusicPlay : Signal Bool
 port jsMusicPlay = .musicPlay <~ gameState
+
+port jsPlayClickSound : Signal Bool
+port jsPlayClickSound = .isClick <~ gameState
+
+port jsPlayLevelUpSound : Signal Bool
+port jsPlayLevelUpSound = .isLevelUp <~ gameState
