@@ -155,10 +155,24 @@ displayMessage message =
   (container width 100 middle
   (toText message |> leftAligned |> size 280 80))
 
+displayPhase : Phase -> Element
+displayPhase phase =
+  let
+    stars =
+      case phase of
+        A -> "★"
+        B -> "★★"
+        C -> "★★★"
+        _ -> ""
+  in
+    (container width 100 middle
+    (toText stars |> leftAligned |> size 280 80))
+
 displayUI : Game -> Element
-displayUI ({yesButton, noButton, message} as game) =
+displayUI ({yesButton, noButton, message, phase} as game) =
   flow down [
-    (spacer width 320), 
+    (displayPhase phase),
+    (spacer width 250), 
     displayMessage message ,
     (spacer width 5),
     displayButtons yesButton noButton]
