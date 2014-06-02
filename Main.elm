@@ -180,7 +180,7 @@ displayUI ({yesButton, noButton, message, phase, score} as game) =
     (spacer width 10), 
     (displayScore score),
     (displayPhase phase),
-    (spacer width 280), 
+    (spacer width 250), 
     displayMessage message ,
     (spacer width 5),
     displayButtons yesButton noButton]
