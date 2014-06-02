@@ -7,6 +7,7 @@ Elm.ChoiceGame.make = function (_elm) {
    var _N = Elm.Native,
    _U = _N.Utils.make(_elm),
    _L = _N.List.make(_elm),
+   _A = _N.Array.make(_elm),
    _E = _N.Error.make(_elm),
    $moduleName = "ChoiceGame";
    var Basics = Elm.Basics.make(_elm);
@@ -26,12 +27,12 @@ Elm.ChoiceGame.make = function (_elm) {
    var Native = Native || {};
    Native.Ports = Elm.Native.Ports.make(_elm);
    var Question = Elm.Question.make(_elm);
+   var Random = Elm.Random.make(_elm);
    var Signal = Elm.Signal.make(_elm);
    var String = Elm.String.make(_elm);
    var Text = Elm.Text.make(_elm);
    var Time = Elm.Time.make(_elm);
    var _op = {};
-   var delta = Time.fps(30);
    var getGirlSrc = function (face) {
       return function () {
          switch (face.ctor)
@@ -44,7 +45,7 @@ Elm.ChoiceGame.make = function (_elm) {
             case "SYOBON":
             return "img/syobon.jpg";}
          _E.Case($moduleName,
-         "between lines 131 and 135");
+         "between lines 144 and 148");
       }();
    };
    var colorButton = F2(function (c,
@@ -83,26 +84,56 @@ Elm.ChoiceGame.make = function (_elm) {
       hoverButton(b),
       downButton(b));
    });
-   var Game = F9(function (a,
-   b,
-   c,
-   d,
-   e,
-   f,
-   g,
-   h,
-   i) {
-      return {_: {}
-             ,currentQuestion: g
-             ,girl: c
-             ,message: f
-             ,musicPlay: i
-             ,noButton: e
-             ,phase: a
-             ,questions: h
-             ,state: b
-             ,yesButton: d};
-   });
+   var clearLevelUpSound = function (game) {
+      return _U.replace([["isLevelUp"
+                         ,false]],
+      game);
+   };
+   var clearClickSound = function (game) {
+      return _U.replace([["isClick"
+                         ,false]],
+      game);
+   };
+   var clearSound = function ($) {
+      return clearClickSound(clearLevelUpSound($));
+   };
+   var Game = function (a) {
+      return function (b) {
+         return function (c) {
+            return function (d) {
+               return function (e) {
+                  return function (f) {
+                     return function (g) {
+                        return function (h) {
+                           return function (i) {
+                              return function (j) {
+                                 return function (k) {
+                                    return function (l) {
+                                       return {_: {}
+                                              ,currentQuestion: g
+                                              ,girl: c
+                                              ,isClick: j
+                                              ,isLevelUp: k
+                                              ,message: f
+                                              ,musicPlay: i
+                                              ,noButton: e
+                                              ,phase: a
+                                              ,questions: h
+                                              ,score: l
+                                              ,state: b
+                                              ,yesButton: d};
+                                    };
+                                 };
+                              };
+                           };
+                        };
+                     };
+                  };
+               };
+            };
+         };
+      };
+   };
    var Button = F2(function (a,b) {
       return {_: {}
              ,decision: b
@@ -126,47 +157,71 @@ Elm.ChoiceGame.make = function (_elm) {
    var C = {ctor: "C"};
    var B = {ctor: "B"};
    var A = {ctor: "A"};
-   var stepState = function (game) {
-      return List.isEmpty(game.questions) ? function () {
-         var _v1 = game.phase;
-         switch (_v1.ctor)
-         {case "A":
-            return _U.replace([["phase",B]
-                              ,["questions"
-                               ,Question.sampleQuestions2]],
-              game);
-            case "B":
+   var PROLOGUE = {ctor: "PROLOGUE"};
+   var stepState = F2(function (_v1,
+   game) {
+      return function () {
+         return List.isEmpty(game.questions) ? function () {
+            var _v3 = game.phase;
+            switch (_v3.ctor)
+            {case "A":
+               return _U.replace([["phase",B]
+                                 ,["questions"
+                                  ,Question.sampleQuestions2(_v1.seed)]
+                                 ,["isLevelUp",true]],
+                 game);
+               case "B":
+               return _U.replace([["phase",C]
+                                 ,["questions"
+                                  ,Question.sampleQuestions3(_v1.seed)]
+                                 ,["isLevelUp",true]],
+                 game);
+               case "PROLOGUE":
+               return _U.replace([["phase",A]
+                                 ,["questions"
+                                  ,Question.sampleQuestions(_v1.seed)]
+                                 ,["isLevelUp",true]],
+                 game);}
             return _U.replace([["phase",C]
                               ,["questions"
-                               ,Question.sampleQuestions3]],
-              game);}
-         return _U.replace([["phase",C]
-                           ,["questions"
-                            ,Question.sampleQuestions3]],
-         game);
-      }() : game;
-   };
-   var nextGame = function ($) {
-      return stepQuestion(stepState($));
+                               ,Question.sampleQuestions3(_v1.seed)]
+                              ,["isLevelUp",true]],
+            game);
+         }() : game;
+      }();
+   });
+   var nextGame = function (userInput) {
+      return function ($) {
+         return stepQuestion(stepState(userInput)($));
+      };
    };
    var Input = F2(function (a,b) {
       return {_: {}
-             ,timeDelta: a
-             ,userInput: b};
+             ,point: b
+             ,userInput: a};
    });
-   var UserInput = function (a) {
-      return {_: {},decision: a};
-   };
+   var UserInput = F2(function (a,
+   b) {
+      return {_: {}
+             ,decision: a
+             ,seed: b};
+   });
    var NONE = {ctor: "NONE"};
    var decision = Graphics.Input.input(NONE);
-   var userInput = A2(Signal._op["<~"],
+   var userInput = A2(Signal._op["~"],
+   A2(Signal._op["<~"],
    UserInput,
-   decision.signal);
-   var input = A2(Signal.sampleOn,
-   delta,
-   A3(Signal.lift2,
+   decision.signal),
+   A3(Random.range,
+   -10000,
+   10000,
+   Signal.constant(0)));
+   var input = A3(Signal.lift2,
    Input,
-   delta,
+   userInput,
+   A3(Random.range,
+   30,
+   40,
    userInput));
    var displayButtons = F2(function (yesButton,
    noButton) {
@@ -190,13 +245,16 @@ Elm.ChoiceGame.make = function (_elm) {
                                        ,yesMessage: "しっかりしてくださいっス"}
                      ,girl: {_: {}
                             ,face: Girl.NATURAL}
+                     ,isClick: false
+                     ,isLevelUp: false
                      ,message: "……ぱい……先輩っ！　聞こえてるっスか？"
                      ,musicPlay: true
                      ,noButton: {_: {}
                                 ,decision: NO
                                 ,text: "いいえ"}
-                     ,phase: A
-                     ,questions: Question.sampleQuestions
+                     ,phase: PROLOGUE
+                     ,questions: Question.prologueQuestions
+                     ,score: 0
                      ,state: QUESTION
                      ,yesButton: {_: {}
                                  ,decision: YES
@@ -205,8 +263,8 @@ Elm.ChoiceGame.make = function (_elm) {
    question,
    girl) {
       return function () {
-         var _v2 = input.decision;
-         switch (_v2.ctor)
+         var _v4 = input.decision;
+         switch (_v4.ctor)
          {case "NO":
             return _U.replace([["face"
                                ,question.noFace]],
@@ -220,50 +278,60 @@ Elm.ChoiceGame.make = function (_elm) {
                                ,question.yesFace]],
               girl);}
          _E.Case($moduleName,
-         "between lines 50 and 53");
+         "between lines 54 and 57");
       }();
    });
-   var stepGame = F2(function (_v3,
-   _v4) {
+   var stepGame = F2(function (_v5,
+   _v6) {
       return function () {
          return function () {
             return function () {
+               var game = clearSound(_v6);
                var g = A3(stepGirl,
-               _v3.userInput,
-               _v4.currentQuestion,
-               _v4.girl);
+               _v5.userInput,
+               _v6.currentQuestion,
+               game.girl);
                return function () {
-                  var _v7 = _v4.state;
-                  switch (_v7.ctor)
+                  var _v9 = game.state;
+                  switch (_v9.ctor)
                   {case "ANSWER":
-                     return _U.eq(_v3.userInput.decision,
-                       NONE) ? nextGame(_U.replace([["girl"
-                                                    ,g]],
-                       _v4)) : _v4;
+                     return A2(nextGame,
+                       _v5.userInput,
+                       _U.replace([["girl"
+                                   ,_U.replace([["face"
+                                                ,Girl.NATURAL]],
+                                   g)]],
+                       game));
                      case "QUESTION":
                      return function () {
-                          var _v8 = _v3.userInput.decision;
-                          switch (_v8.ctor)
+                          var _v10 = _v5.userInput.decision;
+                          switch (_v10.ctor)
                           {case "NO":
                              return _U.replace([["state"
                                                 ,ANSWER]
                                                ,["message"
-                                                ,_v4.currentQuestion.noMessage]
-                                               ,["girl",g]],
-                               _v4);
-                             case "NONE": return _v4;
+                                                ,_v6.currentQuestion.noMessage]
+                                               ,["girl",g]
+                                               ,["isClick",true]
+                                               ,["score"
+                                                ,game.score + _v5.point]],
+                               game);
+                             case "NONE": return game;
                              case "YES":
                              return _U.replace([["state"
                                                 ,ANSWER]
                                                ,["message"
-                                                ,_v4.currentQuestion.yesMessage]
-                                               ,["girl",g]],
-                               _v4);}
+                                                ,_v6.currentQuestion.yesMessage]
+                                               ,["girl",g]
+                                               ,["isClick",true]
+                                               ,["score"
+                                                ,game.score + _v5.point]],
+                               game);}
                           _E.Case($moduleName,
-                          "between lines 84 and 91");
+                          "between lines 99 and 106");
                        }();}
                   _E.Case($moduleName,
-                  "between lines 82 and 94");
+                  "between lines 97 and 107");
                }();
             }();
          }();
@@ -280,6 +348,24 @@ Elm.ChoiceGame.make = function (_elm) {
    A2(Signal._op["<~"],
    function (_) {
       return _.musicPlay;
+   },
+   gameState));
+   var jsPlayClickSound = Native.Ports.portOut("jsPlayClickSound",
+   Native.Ports.outgoingSignal(function (v) {
+      return v;
+   }),
+   A2(Signal._op["<~"],
+   function (_) {
+      return _.isClick;
+   },
+   gameState));
+   var jsPlayLevelUpSound = Native.Ports.portOut("jsPlayLevelUpSound",
+   Native.Ports.outgoingSignal(function (v) {
+      return v;
+   }),
+   A2(Signal._op["<~"],
+   function (_) {
+      return _.isLevelUp;
    },
    gameState));
    var height = 480;
@@ -301,28 +387,60 @@ Elm.ChoiceGame.make = function (_elm) {
       280,
       80)(Text.leftAligned(Text.toText(message)))));
    };
-   var displayUI = function (_v9) {
+   var displayPhase = function (phase) {
+      return function () {
+         var stars = function () {
+            switch (phase.ctor)
+            {case "A": return "★";
+               case "B": return "★★";
+               case "C": return "★★★";}
+            return "";
+         }();
+         return A4(Graphics.Element.container,
+         width,
+         30,
+         Graphics.Element.middle,
+         A2(Graphics.Element.size,
+         280,
+         30)(Text.leftAligned(Text.toText(stars))));
+      }();
+   };
+   var displayScore = function (score) {
+      return A4(Graphics.Element.container,
+      width,
+      30,
+      Graphics.Element.middle,
+      A2(Graphics.Element.size,
+      280,
+      30)(Text.leftAligned(Text.toText(String.show(score)))));
+   };
+   var displayUI = function (_v12) {
       return function () {
          return A2(Graphics.Element.flow,
          Graphics.Element.down,
          _L.fromArray([A2(Graphics.Element.spacer,
                       width,
-                      320)
-                      ,displayMessage(_v9.message)
+                      10)
+                      ,displayScore(_v12.score)
+                      ,displayPhase(_v12.phase)
+                      ,A2(Graphics.Element.spacer,
+                      width,
+                      280)
+                      ,displayMessage(_v12.message)
                       ,A2(Graphics.Element.spacer,
                       width,
                       5)
                       ,A2(displayButtons,
-                      _v9.yesButton,
-                      _v9.noButton)]));
+                      _v12.yesButton,
+                      _v12.noButton)]));
       }();
    };
-   var display = function (_v11) {
+   var display = function (_v14) {
       return function () {
          return A2(Graphics.Input.clickable,
          decision.handle,
-         NONE)(Graphics.Element.layers(_L.fromArray([displayGirl(_v11.girl)
-                                                    ,displayUI(_v11)])));
+         NONE)(Graphics.Element.layers(_L.fromArray([displayGirl(_v14.girl)
+                                                    ,displayUI(_v14)])));
       }();
    };
    var main = A2(Signal.lift,
@@ -337,6 +455,9 @@ Elm.ChoiceGame.make = function (_elm) {
                             ,stepGirl: stepGirl
                             ,stepState: stepState
                             ,stepQuestion: stepQuestion
+                            ,clearClickSound: clearClickSound
+                            ,clearLevelUpSound: clearLevelUpSound
+                            ,clearSound: clearSound
                             ,nextGame: nextGame
                             ,stepGame: stepGame
                             ,colorButton: colorButton
@@ -348,15 +469,17 @@ Elm.ChoiceGame.make = function (_elm) {
                             ,getGirlSrc: getGirlSrc
                             ,displayGirl: displayGirl
                             ,displayMessage: displayMessage
+                            ,displayPhase: displayPhase
+                            ,displayScore: displayScore
                             ,displayUI: displayUI
                             ,display: display
-                            ,delta: delta
                             ,input: input
                             ,gameState: gameState
                             ,main: main
                             ,YES: YES
                             ,NO: NO
                             ,NONE: NONE
+                            ,PROLOGUE: PROLOGUE
                             ,A: A
                             ,B: B
                             ,C: C
@@ -376,6 +499,7 @@ Elm.Question.make = function (_elm) {
    var _N = Elm.Native,
    _U = _N.Utils.make(_elm),
    _L = _N.List.make(_elm),
+   _A = _N.Array.make(_elm),
    _E = _N.Error.make(_elm),
    $moduleName = "Question";
    var Basics = Elm.Basics.make(_elm);
@@ -433,11 +557,13 @@ Elm.Question.make = function (_elm) {
                                        ,question: "……"
                                        ,yesFace: Girl.NIKORI
                                        ,yesMessage: "なにが「はい」っスか。イエスマンも大概にするっス"}]);
-   var sampleQuestions3 = A2(List.take,
-   3,
-   A2(Util.shuffle,
-   phaseCQuestions,
-   5425234));
+   var sampleQuestions3 = function (seed) {
+      return A2(List.take,
+      3,
+      A2(Util.shuffle,
+      phaseCQuestions,
+      seed));
+   };
    var phaseBQuestions = _L.fromArray([{_: {}
                                        ,noFace: Girl.SYOBON
                                        ,noMessage: "先輩のくせに生意気っス"
@@ -456,12 +582,6 @@ Elm.Question.make = function (_elm) {
                                        ,question: "……質問ばかりでウザいっスか？"
                                        ,yesFace: Girl.NIKORI
                                        ,yesMessage: "ごめんなさい。申し訳ないっス。"}
-                                      ,{_: {}
-                                       ,noFace: Girl.SYOBON
-                                       ,noMessage: "じゃあソース、塩コショウ、ケチャップ……まさかハチミツっスか？"
-                                       ,question: "目玉焼きには醤油派っスか？"
-                                       ,yesFace: Girl.NIKORI
-                                       ,yesMessage: "私はケチャップ派っス"}
                                       ,{_: {}
                                        ,noFace: Girl.SYOBON
                                        ,noMessage: "ふふふ"
@@ -486,18 +606,14 @@ Elm.Question.make = function (_elm) {
                                        ,question: "私って可愛いっスか？"
                                        ,yesFace: Girl.NIKORI
                                        ,yesMessage: "ありがとうっス"}]);
-   var sampleQuestions2 = A2(List.take,
-   4,
-   A2(Util.shuffle,
-   phaseBQuestions,
-   15534324));
+   var sampleQuestions2 = function (seed) {
+      return A2(List.take,
+      4,
+      A2(Util.shuffle,
+      phaseBQuestions,
+      seed));
+   };
    var phaseAQuestions = _L.fromArray([{_: {}
-                                       ,noFace: Girl.NIKORI
-                                       ,noMessage: "私も先輩のこと嫌いっス"
-                                       ,question: "先輩、私のこと好きッスか？"
-                                       ,yesFace: Girl.NIKORI
-                                       ,yesMessage: "私は先輩のこと嫌いっス"}
-                                      ,{_: {}
                                        ,noFace: Girl.SYOBON
                                        ,noMessage: "せっかく新しい水着買ったのに……"
                                        ,question: "海。海行きたくないスか？"
@@ -517,15 +633,29 @@ Elm.Question.make = function (_elm) {
                                        ,yesMessage: "実はここにひとつあるっス。半分こにするッス。スプーン？ ひとつしかないっスよ？"}
                                       ,{_: {}
                                        ,noFace: Girl.SYOBON
+                                       ,noMessage: "じゃあソース、塩コショウ、ケチャップ……まさかハチミツっスか？"
+                                       ,question: "目玉焼きには醤油派っスか？"
+                                       ,yesFace: Girl.NIKORI
+                                       ,yesMessage: "私はケチャップ派っス"}
+                                      ,{_: {}
+                                       ,noFace: Girl.SYOBON
                                        ,noMessage: "二人でカレー作ったりしたかったっス……"
                                        ,question: "山。山行きたくないっスか？"
                                        ,yesFace: Girl.NIKORI
                                        ,yesMessage: "意外とアウトドア派なんスね"}]);
-   var sampleQuestions = A2(List.take,
-   3,
-   A2(Util.shuffle,
-   phaseAQuestions,
-   1234313));
+   var sampleQuestions = function (seed) {
+      return A2(List.take,
+      3,
+      A2(Util.shuffle,
+      phaseAQuestions,
+      seed));
+   };
+   var prologueQuestions = _L.fromArray([{_: {}
+                                         ,noFace: Girl.NIKORI
+                                         ,noMessage: "私も先輩のこと嫌いっス"
+                                         ,question: "先輩、私のこと好きッスか？"
+                                         ,yesFace: Girl.NIKORI
+                                         ,yesMessage: "私は先輩のこと嫌いっス"}]);
    var Question = F5(function (a,
    b,
    c,
@@ -539,6 +669,7 @@ Elm.Question.make = function (_elm) {
              ,yesMessage: b};
    });
    _elm.Question.values = {_op: _op
+                          ,prologueQuestions: prologueQuestions
                           ,phaseAQuestions: phaseAQuestions
                           ,phaseBQuestions: phaseBQuestions
                           ,phaseCQuestions: phaseCQuestions
@@ -556,6 +687,7 @@ Elm.Girl.make = function (_elm) {
    var _N = Elm.Native,
    _U = _N.Utils.make(_elm),
    _L = _N.List.make(_elm),
+   _A = _N.Array.make(_elm),
    _E = _N.Error.make(_elm),
    $moduleName = "Girl";
    var Basics = Elm.Basics.make(_elm);
@@ -598,6 +730,7 @@ Elm.Util.make = function (_elm) {
    var _N = Elm.Native,
    _U = _N.Utils.make(_elm),
    _L = _N.List.make(_elm),
+   _A = _N.Array.make(_elm),
    _E = _N.Error.make(_elm),
    $moduleName = "Util";
    var Basics = Elm.Basics.make(_elm);
@@ -680,6 +813,7 @@ Elm.Pseudorandom.make = function (_elm) {
    var _N = Elm.Native,
    _U = _N.Utils.make(_elm),
    _L = _N.List.make(_elm),
+   _A = _N.Array.make(_elm),
    _E = _N.Error.make(_elm),
    $moduleName = "Pseudorandom";
    var Basics = Elm.Basics.make(_elm);
