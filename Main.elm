@@ -26,7 +26,7 @@ data State = ANSWER | QUESTION
 type Button = { text : String, decision : Decision }
 
 type Game = { phase : Phase, state:State, girl:Girl, yesButton : Button, noButton : Button,
-  message : String, currentQuestion : Question, questions : [Question], musicPlay : Bool, isClick : Bool , isLevelUp : Bool }
+  message : String, currentQuestion : Question, questions : [Question], musicPlay : Bool, isClick : Bool, isLevelUp : Bool, score : Int }
 
 defaultGame : Game
 defaultGame = {
@@ -45,7 +45,8 @@ defaultGame = {
     noFace = NIKORI },
   musicPlay = True,
   isClick = False,
-  isLevelUp = False }
+  isLevelUp = False,
+  score = 0 }
 
 -- update --
 stepGirl : UserInput -> Question -> Girl -> Girl
@@ -165,14 +166,21 @@ displayPhase phase =
         C -> "★★★"
         _ -> ""
   in
-    (container width 100 middle
-    (toText stars |> leftAligned |> size 280 80))
+    (container width 30 middle
+    (toText stars |> leftAligned |> size 280 30))
+
+displayScore : Int -> Element
+displayScore score =
+    (container width 30 middle
+    (toText (show score) |> leftAligned |> size 280 30))
 
 displayUI : Game -> Element
-displayUI ({yesButton, noButton, message, phase} as game) =
+displayUI ({yesButton, noButton, message, phase, score} as game) =
   flow down [
+    (spacer width 10), 
+    (displayScore score),
     (displayPhase phase),
-    (spacer width 250), 
+    (spacer width 280), 
     displayMessage message ,
     (spacer width 5),
     displayButtons yesButton noButton]
