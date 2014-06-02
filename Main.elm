@@ -146,6 +146,9 @@ getGirlSrc face =
     NIKORI -> "img/nikori.jpg"
     SYOBON -> "img/syobon.jpg"
     ELTSU -> "img/eltsu.jpg"
+    BIKKURI -> "img/bikkuri.jpg"
+    MU -> "img/mu.jpg"
+    EHEHE -> "img/ehehe.jpg"
 
 displayGirl : Girl -> Element
 displayGirl girl = image width height (getGirlSrc girl.face)
