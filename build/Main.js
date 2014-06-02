@@ -36,8 +36,13 @@ Elm.ChoiceGame.make = function (_elm) {
    var getGirlSrc = function (face) {
       return function () {
          switch (face.ctor)
-         {case "ELTSU":
+         {case "BIKKURI":
+            return "img/bikkuri.jpg";
+            case "EHEHE":
+            return "img/ehehe.jpg";
+            case "ELTSU":
             return "img/eltsu.jpg";
+            case "MU": return "img/mu.jpg";
             case "NATURAL":
             return "img/natural.jpg";
             case "NIKORI":
@@ -45,7 +50,7 @@ Elm.ChoiceGame.make = function (_elm) {
             case "SYOBON":
             return "img/syobon.jpg";}
          _E.Case($moduleName,
-         "between lines 144 and 148");
+         "between lines 144 and 151");
       }();
    };
    var colorButton = F2(function (c,
@@ -425,7 +430,7 @@ Elm.ChoiceGame.make = function (_elm) {
                       ,displayPhase(_v12.phase)
                       ,A2(Graphics.Element.spacer,
                       width,
-                      280)
+                      250)
                       ,displayMessage(_v12.message)
                       ,A2(Graphics.Element.spacer,
                       width,
@@ -522,11 +527,11 @@ Elm.Question.make = function (_elm) {
    var Util = Elm.Util.make(_elm);
    var _op = {};
    var phaseCQuestions = _L.fromArray([{_: {}
-                                       ,noFace: Girl.SYOBON
-                                       ,noMessage: "……先輩変わってるっス"
-                                       ,question: "先輩、実はこの世界って私たち二人しかいないんス。寂しいッスか？"
+                                       ,noFace: Girl.MU
+                                       ,noMessage: "むー"
+                                       ,question: "せーんぱい？"
                                        ,yesFace: Girl.NIKORI
-                                       ,yesMessage: "私も実はちょっとそう思うっス"}
+                                       ,yesMessage: "えへへ"}
                                       ,{_: {}
                                        ,noFace: Girl.NIKORI
                                        ,noMessage: "私はよく見るっス。夢の中の先輩はもう少しカッコいいっス"
@@ -534,28 +539,28 @@ Elm.Question.make = function (_elm) {
                                        ,yesFace: Girl.NIKORI
                                        ,yesMessage: "夢で私に出会ったらよろしくっス"}
                                       ,{_: {}
-                                       ,noFace: Girl.SYOBON
+                                       ,noFace: Girl.EHEHE
                                        ,noMessage: "先輩、もうちょっと勉強するっス"
                                        ,question: "胡蝶の夢って知ってるっスか？"
                                        ,yesFace: Girl.NIKORI
                                        ,yesMessage: "実はこれ、先輩の夢かも知れないっスね"}
                                       ,{_: {}
-                                       ,noFace: Girl.SYOBON
-                                       ,noMessage: "むー"
-                                       ,question: "せーんぱい？"
-                                       ,yesFace: Girl.NIKORI
-                                       ,yesMessage: "えへへ"}
+                                       ,noFace: Girl.BIKKURI
+                                       ,noMessage: "……先輩変わってるっス"
+                                       ,question: "先輩、実はこの世界って私たち二人しかいないんス。寂しいッスか？"
+                                       ,yesFace: Girl.EHEHE
+                                       ,yesMessage: "私も実はちょっとそう思うっス"}
                                       ,{_: {}
                                        ,noFace: Girl.SYOBON
                                        ,noMessage: "すまないっス。魅力なくてすまないっス。"
                                        ,question: "二人は寂しいスなぁ。……子作りするッス？"
-                                       ,yesFace: Girl.NIKORI
+                                       ,yesFace: Girl.EHEHE
                                        ,yesMessage: "冗談っスよ。エッチ"}
                                       ,{_: {}
-                                       ,noFace: Girl.SYOBON
+                                       ,noFace: Girl.MU
                                        ,noMessage: "なにが「いいえ」っスか。天邪鬼も大概にするっス"
                                        ,question: "……"
-                                       ,yesFace: Girl.NIKORI
+                                       ,yesFace: Girl.MU
                                        ,yesMessage: "なにが「はい」っスか。イエスマンも大概にするっス"}]);
    var sampleQuestions3 = function (seed) {
       return A2(List.take,
@@ -565,37 +570,37 @@ Elm.Question.make = function (_elm) {
       seed));
    };
    var phaseBQuestions = _L.fromArray([{_: {}
-                                       ,noFace: Girl.SYOBON
+                                       ,noFace: Girl.NIKORI
                                        ,noMessage: "先輩のくせに生意気っス"
                                        ,question: "先輩、仮に私が先輩のこと好きって言ったら、嬉しいッスか？"
                                        ,yesFace: Girl.NIKORI
                                        ,yesMessage: "いや、まあ嫌いっスけど"}
                                       ,{_: {}
-                                       ,noFace: Girl.SYOBON
+                                       ,noFace: Girl.NIKORI
                                        ,noMessage: "いい子っス。腕によりをかけて作るっスよ―！"
                                        ,question: "今日の夕飯は私が作ってあげるっス。嫌いなものあるっスか？"
-                                       ,yesFace: Girl.NIKORI
+                                       ,yesFace: Girl.SYOBON
                                        ,yesMessage: "駄目っスよ。大きくなれないっス。長生きも出来ないかも知れないっス……"}
                                       ,{_: {}
-                                       ,noFace: Girl.SYOBON
+                                       ,noFace: Girl.NIKORI
                                        ,noMessage: "良かったっス。先輩のこともっと知りたいっス。"
                                        ,question: "……質問ばかりでウザいっスか？"
-                                       ,yesFace: Girl.NIKORI
+                                       ,yesFace: Girl.SYOBON
                                        ,yesMessage: "ごめんなさい。申し訳ないっス。"}
                                       ,{_: {}
-                                       ,noFace: Girl.SYOBON
+                                       ,noFace: Girl.NIKORI
                                        ,noMessage: "ふふふ"
                                        ,question: "仮にこの世界に先輩と私しかいなかったらどうするッス？"
                                        ,yesFace: Girl.NIKORI
                                        ,yesMessage: "ふふふ"}
                                       ,{_: {}
-                                       ,noFace: Girl.SYOBON
+                                       ,noFace: Girl.NATURAL
                                        ,noMessage: "……"
                                        ,question: "先輩、たまには自分の意志を言って欲しいっス"
-                                       ,yesFace: Girl.NIKORI
+                                       ,yesFace: Girl.NATURAL
                                        ,yesMessage: "……"}
                                       ,{_: {}
-                                       ,noFace: Girl.SYOBON
+                                       ,noFace: Girl.NIKORI
                                        ,noMessage: "私、親子丼の三つ葉が好きなんスよね"
                                        ,question: "親子丼が食べたいっス"
                                        ,yesFace: Girl.NIKORI
@@ -632,7 +637,7 @@ Elm.Question.make = function (_elm) {
                                        ,yesFace: Girl.NIKORI
                                        ,yesMessage: "実はここにひとつあるっス。半分こにするッス。スプーン？ ひとつしかないっスよ？"}
                                       ,{_: {}
-                                       ,noFace: Girl.SYOBON
+                                       ,noFace: Girl.BIKKURI
                                        ,noMessage: "じゃあソース、塩コショウ、ケチャップ……まさかハチミツっスか？"
                                        ,question: "目玉焼きには醤油派っスか？"
                                        ,yesFace: Girl.NIKORI
@@ -641,7 +646,7 @@ Elm.Question.make = function (_elm) {
                                        ,noFace: Girl.SYOBON
                                        ,noMessage: "二人でカレー作ったりしたかったっス……"
                                        ,question: "山。山行きたくないっスか？"
-                                       ,yesFace: Girl.NIKORI
+                                       ,yesFace: Girl.BIKKURI
                                        ,yesMessage: "意外とアウトドア派なんスね"}]);
    var sampleQuestions = function (seed) {
       return A2(List.take,
@@ -710,6 +715,9 @@ Elm.Girl.make = function (_elm) {
    var Girl = function (a) {
       return {_: {},face: a};
    };
+   var EHEHE = {ctor: "EHEHE"};
+   var MU = {ctor: "MU"};
+   var BIKKURI = {ctor: "BIKKURI"};
    var ELTSU = {ctor: "ELTSU"};
    var SYOBON = {ctor: "SYOBON"};
    var NIKORI = {ctor: "NIKORI"};
@@ -719,6 +727,9 @@ Elm.Girl.make = function (_elm) {
                       ,NIKORI: NIKORI
                       ,SYOBON: SYOBON
                       ,ELTSU: ELTSU
+                      ,BIKKURI: BIKKURI
+                      ,MU: MU
+                      ,EHEHE: EHEHE
                       ,Girl: Girl};
    return _elm.Girl.values;
 };Elm.Util = Elm.Util || {};
