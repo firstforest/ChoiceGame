@@ -56,6 +56,16 @@ stepGirl input question girl =
     NO -> { girl | face <- question.noFace }
     NONE -> { girl | face <- NATURAL }
 
+updateGirl : Input -> Game -> Game
+updateGirl { userInput } ({ currentQuestion, girl, state } as game) =
+  let
+      nextGirl =
+          case state of
+            ANSWER -> stepGirl userInput currentQuestion girl
+            QUESTION -> { girl | face <- NATURAL }
+  in
+    { game | girl <- nextGirl }
+
 stepState : UserInput -> Game -> Game
 stepState { seed } game = 
   if (isEmpty game.questions)
@@ -89,22 +99,20 @@ nextGame : UserInput -> Game -> Game
 nextGame userInput = stepQuestion . ( stepState userInput )
 
 stepGame : Input -> Game -> Game
-stepGame ({ userInput , point } as input) ({ currentQuestion } as game') =
-  let
-    g = stepGirl userInput currentQuestion game.girl
-    game = clearSound game'
-  in
-    case game.state of
-      QUESTION ->
+stepGame input = (updateGirl input) . (updateGame input) . clearSound
+
+updateGame ({ userInput , point } as input) ({ currentQuestion } as game) =
+  case game.state of
+    QUESTION ->
         case userInput.decision of
           YES ->
-            { game | state <- ANSWER, message <- currentQuestion.yesMessage, girl <- g, isClick <- True, score <- game.score + point }
+            { game | state <- ANSWER, message <- currentQuestion.yesMessage, isClick <- True, score <- game.score + point }
           NO ->
-            { game | state <- ANSWER, message <- currentQuestion.noMessage, girl <- g , isClick <- True, score <- game.score + point }
+            { game | state <- ANSWER, message <- currentQuestion.noMessage, isClick <- True, score <- game.score + point }
           NONE ->
             game
-      ANSWER ->
-        nextGame userInput { game | girl <- { g | face <- NATURAL } }
+    ANSWER ->
+        nextGame userInput game
 
 -- display --
 colorButton : Color -> Button -> Element
