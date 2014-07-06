@@ -20,7 +20,7 @@ userInput = UserInput <~ decision.signal ~ Random.range -10000 10000 (constant 0
 
 type Input = { userInput : UserInput , point : Int}
 
-data Phase = PROLOGUE | A | B | C
+data Phase = PROLOGUE | A | B | C | D | GAMEOVER
 data State = ANSWER | QUESTION
 
 type Button = { text : String, decision : Decision }
@@ -67,15 +67,16 @@ updateGirl { userInput } ({ currentQuestion, girl, state } as game) =
     { game | girl <- nextGirl }
 
 stepState : UserInput -> Game -> Game
-stepState { seed } game = 
+stepState { seed, decision } game = 
   if (isEmpty game.questions)
-    then
+  then
       case game.phase of
         PROLOGUE -> { game | phase <- A, questions <- sampleQuestions seed, isLevelUp <- True }
         A -> { game | phase <- B, questions <- sampleQuestions2 seed, isLevelUp <- True }
         B -> { game | phase <- C, questions <- sampleQuestions3 seed, isLevelUp <- True }
+        C -> { game | phase <- D, questions <- questionsD, isLevelUp <- True }
         _ -> { game | phase <- C, questions <- sampleQuestions3 seed, isLevelUp <- True }
-    else game
+  else game
 
 stepQuestion : Game -> Game
 stepQuestion game =
@@ -85,15 +86,6 @@ stepQuestion game =
     message = q.question
   in
     { game | state <- QUESTION, message <- message, currentQuestion <- q, questions <- qs }
-
-clearClickSound : Game -> Game
-clearClickSound game = { game | isClick <- False }
-
-clearLevelUpSound : Game -> Game
-clearLevelUpSound game = { game | isLevelUp <- False }
-
-clearSound : Game -> Game
-clearSound = clearClickSound . clearLevelUpSound
 
 nextGame : UserInput -> Game -> Game
 nextGame userInput = stepQuestion . ( stepState userInput )
@@ -113,6 +105,16 @@ updateGame ({ userInput , point } as input) ({ currentQuestion } as game) =
             game
     ANSWER ->
         nextGame userInput game
+
+-- sound --
+clearClickSound : Game -> Game
+clearClickSound game = { game | isClick <- False }
+
+clearLevelUpSound : Game -> Game
+clearLevelUpSound game = { game | isLevelUp <- False }
+
+clearSound : Game -> Game
+clearSound = clearClickSound . clearLevelUpSound
 
 -- display --
 colorButton : Color -> Button -> Element

@@ -40,3 +40,5 @@ sampleQuestions seed = take 3 (Util.shuffle phaseAQuestions seed)
 sampleQuestions2 seed = take 4 (Util.shuffle phaseBQuestions seed)
 
 sampleQuestions3 seed = take 3 (Util.shuffle phaseCQuestions seed)
+
+questionsD = [{question = "inD", yesMessage = "yes", yesFace = MU, noMessage = "no", noFace = MU}]
