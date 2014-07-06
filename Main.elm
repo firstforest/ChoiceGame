@@ -75,6 +75,7 @@ stepState { seed, decision } game =
         A -> { game | phase <- B, questions <- sampleQuestions2 seed, isLevelUp <- True }
         B -> { game | phase <- C, questions <- sampleQuestions3 seed, isLevelUp <- True }
         C -> { game | phase <- D, questions <- questionsD, isLevelUp <- True }
+        GAMEOVER -> game
         _ -> { game | phase <- C, questions <- sampleQuestions3 seed, isLevelUp <- True }
   else game
 
@@ -100,7 +101,10 @@ updateGame ({ userInput , point } as input) ({ currentQuestion } as game) =
           YES ->
             { game | state <- ANSWER, message <- currentQuestion.yesMessage, isClick <- True, score <- game.score + point }
           NO ->
-            { game | state <- ANSWER, message <- currentQuestion.noMessage, isClick <- True, score <- game.score + point }
+              if game.phase == D
+              then { game | phase <- GAMEOVER, message <- "……そうっスか。ここで「いいえ」と言われたらおしまいっス。……やっぱダメだったスかぁ。先輩、また今度っス" }
+              else 
+                  { game | state <- ANSWER, message <- currentQuestion.noMessage, isClick <- True, score <- game.score + point }
           NONE ->
             game
     ANSWER ->
