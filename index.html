@@ -63,7 +63,10 @@
 
     function playMusic(isPlay) {
         if (isPlay) {
+            music.loop = true;
             music.play();
+        } else {
+            music.pause();
         }
     }
 
