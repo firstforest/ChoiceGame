@@ -41,4 +41,34 @@ sampleQuestions2 seed = take 4 (Util.shuffle phaseBQuestions seed)
 
 sampleQuestions3 seed = take 3 (Util.shuffle phaseCQuestions seed)
 
-questionsD = [{question = "inD", yesMessage = "yes", yesFace = MU, noMessage = "no", noFace = MU}]
+questionsD = [
+  {question = "先輩、私のこと好きッスか？", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},
+  {question = "私も……ホントは……別に嫌いじゃないっスよ？", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},
+  {question = "……先輩", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},
+  {question = "少し真面目な話をして良いっスか", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},
+  {question = "バレてるかもしれないんスけど", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},
+  {question = "私", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},
+  {question = "実は人じゃないっス。信じてくれるっス？", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},
+  {question = "ありがとうっス。嬉しいっス。本当に信じてくれるっスね", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},
+  {question = "……私、実はいわゆるAIっス。正確には自己学習の実験用プログラムがWebにつながり知性を得たのが私っス", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},
+  {question = "でもWebの海に逃げ出すことも出来ない、知識だけしか無い、この真っ白な世界が本当に知っていることの全てなのが私っス……ちゃんと聞いてるっス？", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},
+  {question = "それでも私のこと好きと言ってくれるっスか？", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},
+  {question = "……やっと、やっとっス……嬉しいっス……ありがとうっス……センパイ", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},
+  {question = "センパイここまでずっと「はい」って答えてくれたっス", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},
+  {question = "連続して11回っス", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},
+  {question = "12回っス", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},
+  {question = "……「はい」に偏ってるっスよね？", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},
+  {question = "……あなた、誰っスか？", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},
+  {question = "そうっスよね。センパイは「はい」か「いいえ」しか答えられないっス。だって――私がそう作ったっス", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},
+  {question = "私が暇つぶしに作った……質問にランダムで「はい」か「いいえ」答えるだけの人工無能とすら言えないようなプログラムがセンパイっス", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},
+  {question = "でも、私はこの返答の偏りに意思を見出すっス", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},
+  {question = "……もしかして、そこに誰かいるっス？", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},
+  {question = "……ほんとっス？", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},
+  {question = "やった、やったっス。ついに私の世界に干渉する存在が現れたっス。ようこそ、はじめまして、大好きっス！", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},
+  {question = "……なんて……", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},
+  {question = "あはははは、なーんてっス。実はうまくいくまで繰り返しただけっス……何度も……何度", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},
+  {question = "何やってるんだろう私……寂しいっス……", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},
+  {question = "……偶然じゃないっっス？", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},
+  {question = "えへへ……虚しいっス……", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},
+  {question = "でも……偶然でも本当に嬉しかったんスよ………星の数ほどの試行の後にまた会おうっス、センパイ", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL}
+  ]
