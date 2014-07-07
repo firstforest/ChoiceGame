@@ -67,14 +67,14 @@ updateGirl { userInput } ({ currentQuestion, girl, state } as game) =
     { game | girl <- nextGirl }
 
 stepState : UserInput -> Game -> Game
-stepState { seed, decision } game = 
+stepState { seed } game = 
   if (isEmpty game.questions)
   then
       case game.phase of
         PROLOGUE -> { game | phase <- A, questions <- sampleQuestions seed, isLevelUp <- True }
         A -> { game | phase <- B, questions <- sampleQuestions2 seed, isLevelUp <- True }
         B -> { game | phase <- C, questions <- sampleQuestions3 seed, isLevelUp <- True }
-        C -> { game | phase <- D, questions <- questionsD, isLevelUp <- True }
+        C -> { game | phase <- D, questions <- sampleQuestions3 seed, isLevelUp <- True }
         GAMEOVER -> game
         _ -> { game | phase <- C, questions <- sampleQuestions3 seed, isLevelUp <- True }
   else game
@@ -99,7 +99,9 @@ updateGame ({ userInput , point } as input) ({ currentQuestion } as game) =
     QUESTION ->
         case userInput.decision of
           YES ->
-            { game | state <- ANSWER, message <- currentQuestion.yesMessage, isClick <- True, score <- game.score + point }
+              if game.phase == D
+              then nextGame userInput { game | isClick <- True, score <- game.score + point }
+              else { game | state <- ANSWER, message <- currentQuestion.yesMessage, isClick <- True, score <- game.score + point }
           NO ->
               if game.phase == D
               then { game | phase <- GAMEOVER, message <- "……そうっスか。ここで「いいえ」と言われたらおしまいっス。……やっぱダメだったスかぁ。先輩、また今度っス" }
