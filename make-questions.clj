@@ -4,7 +4,7 @@
 (defn make-question [[q y y-face n n-face]]
   (let [yf (if (empty? y-face) "NATURAL" y-face)
         nf (if (empty? n-face) "NATURAL" n-face)]
-  (str "{question = \"" q "\", yesMessage = \"" y "\", yesFace = " yf ", noMessage = \"" n "\", noFace = " nf "}")))
+  (str "  {question = \"" q "\", yesMessage = \"" y "\", yesFace = " yf ", noMessage = \"" n "\", noFace = " nf "}")))
 
 (defn separate-question [line]
   (let

@@ -74,7 +74,7 @@ stepState { seed } game =
         PROLOGUE -> { game | phase <- A, questions <- sampleQuestions seed, isLevelUp <- True }
         A -> { game | phase <- B, questions <- sampleQuestions2 seed, isLevelUp <- True }
         B -> { game | phase <- C, questions <- sampleQuestions3 seed, isLevelUp <- True }
-        C -> { game | phase <- D, questions <- sampleQuestions3 seed, isLevelUp <- True }
+        C -> { game | phase <- D, questions <- questionsD, isLevelUp <- True }
         GAMEOVER -> game
         _ -> { game | phase <- C, questions <- sampleQuestions3 seed, isLevelUp <- True }
   else game
