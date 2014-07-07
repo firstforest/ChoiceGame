@@ -66,7 +66,7 @@ questionsD = [
   {question = "……ほんとっス？", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},
   {question = "やった、やったっス。ついに私の世界に干渉する存在が現れたっス。ようこそ、はじめまして、大好きっス！", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},
   {question = "……なんて……", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},
-  {question = "あはははは、なーんてっス。実はうまくいくまで繰り返しただけっス……何度も……何度", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},
+  {question = "あはははは、なーんてっス。実はうまくいくまで繰り返しただけっス……何度も……何度も……", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},
   {question = "何やってるんだろう私……寂しいっス……", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},
   {question = "……偶然じゃないっっス？", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},
   {question = "えへへ……虚しいっス……", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},
