@@ -20,7 +20,7 @@ userInput = UserInput <~ decision.signal ~ Random.range -10000 10000 (constant 0
 
 type Input = { userInput : UserInput , point : Int}
 
-data Phase = PROLOGUE | A | B | C | D | GAMEOVER
+data Phase = PROLOGUE | A | B | C | D | E | GAMEOVER
 data State = ANSWER | QUESTION
 
 type Button = { text : String, decision : Decision }
@@ -75,6 +75,7 @@ stepState { seed } game =
         A -> { game | phase <- B, questions <- sampleQuestions2 seed, isLevelUp <- True }
         B -> { game | phase <- C, questions <- sampleQuestions3 seed, isLevelUp <- True }
         C -> { game | phase <- D, questions <- questionsD, isLevelUp <- True }
+        D -> { game | phase <- E, questions <- questionsE, isLevelUp <- True , musicPlay <- False }
         GAMEOVER -> game
         _ -> { game | phase <- C, questions <- sampleQuestions3 seed, isLevelUp <- True }
   else game
@@ -99,11 +100,11 @@ updateGame ({ userInput , point } as input) ({ currentQuestion } as game) =
     QUESTION ->
         case userInput.decision of
           YES ->
-              if game.phase == D
+              if game.phase == D || game.phase == E
               then nextGame userInput { game | isClick <- True, score <- game.score + point }
               else { game | state <- ANSWER, message <- currentQuestion.yesMessage, isClick <- True, score <- game.score + point }
           NO ->
-              if game.phase == D
+              if game.phase == D || game.phase == E
               then { game | phase <- GAMEOVER, message <- "……そうっスか。ここで「いいえ」と言われたらおしまいっス。……やっぱダメだったスかぁ。先輩、また今度っス" }
               else 
                   { game | state <- ANSWER, message <- currentQuestion.noMessage, isClick <- True, score <- game.score + point }
@@ -183,6 +184,7 @@ displayPhase phase =
         A -> "★"
         B -> "★★"
         C -> "★★★"
+        D -> "★★★★"
         _ -> ""
   in
     (container width 30 middle
