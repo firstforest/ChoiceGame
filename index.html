@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <script type="text/javascript" src="http://elm-lang.org/elm-runtime.js"></script>
     <script type="text/javascript" src="build/Main.js"></script>
+    <script type="text/javascript" src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
     <style>
         h1 {
             margin: 1rem;
@@ -64,6 +65,7 @@
     var bgm2 = new Audio();
     bgm2.src = "music/bgm2.mp3";
     bgm2.loop = true;
+    var isBgm2Playing = false;
 
     function playMusic(bgm) {
         switch (bgm) {
@@ -71,8 +73,16 @@
                 bgm1.play();
                 break;
             case "BGM2":
-                bgm1.pause();
-                bgm2.play();
+                if (!isBgm2Playing) {
+                    $(bgm1).animate({volume:0}, 2000);
+                    setTimeout(function(){
+                                bgm1.pause();
+                                bgm2.volume = 0;
+                                bgm2.play();
+                                $(bgm2).animate({volume:1}, 3000);
+                    }, 2000);
+                    isBgm2Playing = true;
+                }
                 break;
             case "None":
                 bgm2.pause();
