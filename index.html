@@ -58,15 +58,26 @@
 <script type="text/javascript">
     var mainDiv = document.getElementById('main');
     var choiceGame = Elm.embed(Elm.ChoiceGame, mainDiv);
-    var music = new Audio();
-    music.src = "music/bgm.mp3";
+    var bgm1 = new Audio();
+    bgm1.src = "music/bgm.mp3";
+    bgm1.loop = true;
+    var bgm2 = new Audio();
+    bgm2.src = "music/bgm2.mp3";
+    bgm2.loop = true;
 
-    function playMusic(isPlay) {
-        if (isPlay) {
-            music.loop = true;
-            music.play();
-        } else {
-            music.pause();
+    function playMusic(bgm) {
+        switch (bgm) {
+            case "BGM1":
+                bgm1.play();
+                break;
+            case "BGM2":
+                bgm1.pause();
+                bgm2.play();
+                break;
+            case "None":
+                bgm2.pause();
+                break;
+            default :
         }
     }
 

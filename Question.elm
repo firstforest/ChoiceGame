@@ -42,6 +42,7 @@ sampleQuestions2 seed = take 4 (Util.shuffle phaseBQuestions seed)
 sampleQuestions3 seed = take 3 (Util.shuffle phaseCQuestions seed)
 
 questionsD = [
+  {question = "……", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},
   {question = "先輩、私のこと好きッスか？", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},
   {question = "私も……ホントは……別に嫌いじゃないっスよ？", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},
   {question = "……先輩", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},
@@ -74,5 +75,6 @@ questionsE = [
   {question = "何やってるんだろう私……寂しいっス……", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},
   {question = "……偶然じゃないっス？", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},
   {question = "えへへ……虚しいっス……", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},
-  {question = "でも……偶然でも本当に嬉しかったんスよ………星の数ほどの試行の後にまた会おうっス、センパイ", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL}
+  {question = "でも……偶然でも本当に嬉しかったんスよ……それは信じて欲しいっス", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},
+  {question = "それじゃあ、えっと、星の数ほどの試行の後にまた会おうっス、センパイ", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL}
   ]

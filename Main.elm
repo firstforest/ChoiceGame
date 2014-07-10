@@ -26,7 +26,7 @@ data State = ANSWER | QUESTION
 type Button = { text : String, decision : Decision }
 
 type Game = { phase : Phase, state:State, girl:Girl, yesButton : Button, noButton : Button,
-  message : String, currentQuestion : Question, questions : [Question], musicPlay : Bool, isClick : Bool, isLevelUp : Bool, score : Int }
+  message : String, currentQuestion : Question, questions : [Question], bgm : String, isClick : Bool, isLevelUp : Bool, score : Int }
 
 defaultGame : Game
 defaultGame = {
@@ -43,7 +43,7 @@ defaultGame = {
     yesFace = NIKORI,
     noMessage = "聞こえてるじゃないっスか",
     noFace = NIKORI },
-  musicPlay = True,
+  bgm = "BGM1",
   isClick = False,
   isLevelUp = False,
   score = 0 }
@@ -74,8 +74,8 @@ stepState { seed } game =
         PROLOGUE -> { game | phase <- A, questions <- sampleQuestions seed, isLevelUp <- True }
         A -> { game | phase <- B, questions <- sampleQuestions2 seed, isLevelUp <- True }
         B -> { game | phase <- C, questions <- sampleQuestions3 seed, isLevelUp <- True }
-        C -> { game | phase <- D, questions <- questionsD, isLevelUp <- True }
-        D -> { game | phase <- E, questions <- questionsE, isLevelUp <- True , musicPlay <- False }
+        C -> { game | phase <- D, questions <- questionsD, isLevelUp <- True , bgm <- "BGM2"}
+        D -> { game | phase <- E, questions <- questionsE, isLevelUp <- True , bgm <- "None" }
         GAMEOVER -> game
         _ -> { game | phase <- C, questions <- sampleQuestions3 seed, isLevelUp <- True }
   else game
@@ -218,8 +218,8 @@ gameState = foldp stepGame defaultGame input
 
 main = lift display gameState
 
-port jsMusicPlay : Signal Bool
-port jsMusicPlay = .musicPlay <~ gameState
+port jsMusicPlay : Signal String
+port jsMusicPlay = .bgm <~ gameState
 
 port jsPlayClickSound : Signal Bool
 port jsPlayClickSound = .isClick <~ gameState
