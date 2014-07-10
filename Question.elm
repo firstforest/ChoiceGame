@@ -60,8 +60,8 @@ questionsD = [
 questionsE = [
   {question = "……センパイ", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},
   {question = "センパイはここまでずっと「はい」って答えてくれたっス", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},
-  {question = "連続して11回っス", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},
-  {question = "12回っス", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},
+  {question = "連続して/{yesnum}/回っス", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},
+  {question = "{yesnum}/回っス", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},
   {question = "……「はい」に偏ってるっスよね？", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},
   {question = "……あなた、誰っスか？", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},
   {question = "そうっスよね。センパイは「はい」か「いいえ」しか答えられないっス。だって――私がそう作ったっス", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},

@@ -5,6 +5,8 @@ import Graphics.Input
 import Question (..)
 import Girl (..)
 import Random
+import Json (..)
+import String as S
 
 width = 320
 height = 480
@@ -26,7 +28,7 @@ data State = ANSWER | QUESTION
 type Button = { text : String, decision : Decision }
 
 type Game = { phase : Phase, state:State, girl:Girl, yesButton : Button, noButton : Button,
-  message : String, currentQuestion : Question, questions : [Question], bgm : String, isClick : Bool, isLevelUp : Bool, score : Int }
+  message : String, currentQuestion : Question, questions : [Question], bgm : String, isClick : Bool, isLevelUp : Bool, score : Int , yesnum : Float }
 
 defaultGame : Game
 defaultGame = {
@@ -46,7 +48,8 @@ defaultGame = {
   bgm = "BGM1",
   isClick = False,
   isLevelUp = False,
-  score = 0 }
+  score = 0,
+  yesnum = 0 }
 
 -- update --
 stepGirl : UserInput -> Question -> Girl -> Girl
@@ -80,12 +83,18 @@ stepState { seed } game =
         _ -> { game | phase <- C, questions <- sampleQuestions3 seed, isLevelUp <- True }
   else game
 
+formatMessage : Game -> String -> String
+formatMessage { yesnum } message =
+  S.join "" 
+  (map (\w -> if w == "{yesnum}" then toString "" (Number yesnum) else w)
+    (S.split "/" message))
+
 stepQuestion : Game -> Game
 stepQuestion game =
   let
     q = head game.questions
     qs = tail game.questions
-    message = q.question
+    message = formatMessage game q.question
   in
     { game | state <- QUESTION, message <- message, currentQuestion <- q, questions <- qs }
 
@@ -101,13 +110,13 @@ updateGame ({ userInput , point } as input) ({ currentQuestion } as game) =
         case userInput.decision of
           YES ->
               if game.phase == D || game.phase == E
-              then nextGame userInput { game | isClick <- True, score <- game.score + point }
-              else { game | state <- ANSWER, message <- currentQuestion.yesMessage, isClick <- True, score <- game.score + point }
+              then nextGame userInput { game | isClick <- True, score <- game.score + point , yesnum <- (game.yesnum + 1) }
+              else { game | state <- ANSWER, message <- currentQuestion.yesMessage, isClick <- True, score <- game.score + point, yesnum <- (game.yesnum + 1)  }
           NO ->
               if game.phase == D || game.phase == E
               then { game | phase <- GAMEOVER, message <- "……そうっスか。ここで「いいえ」と言われたらおしまいっス。……やっぱダメだったスかぁ。先輩、また今度っス" }
               else 
-                  { game | state <- ANSWER, message <- currentQuestion.noMessage, isClick <- True, score <- game.score + point }
+                  { game | state <- ANSWER, message <- currentQuestion.noMessage, isClick <- True, score <- game.score + point, yesnum <- 0 }
           NONE ->
             game
     ANSWER ->
