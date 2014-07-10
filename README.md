@@ -14,6 +14,6 @@
 無断利用等はなさらないでください。
 
 * BGM: [涼しい昼下がりのそぞろ速歩き](http://dova-s.jp/bgm/play471.html)
-* BGM2: [涼しい昼下がりのそぞろ速歩き](http://dova-s.jp/bgm/play225.html)
+* BGM2: [フォークロア](http://dova-s.jp/bgm/play225.html)
 * Click音: [小森平の使い方](http://taira-komori.jpn.org/)
 * レベルアップ音: [On-Jin~音人~](http://on-jin.com/)
