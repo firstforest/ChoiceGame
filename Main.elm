@@ -20,13 +20,13 @@ userInput = UserInput <~ decision.signal ~ Random.range -10000 10000 (constant 0
 
 type Input = { userInput : UserInput , point : Int}
 
-data Phase = PROLOGUE | A | B | C | D | GAMEOVER
+data Phase = PROLOGUE | A | B | C | D | E | GAMEOVER
 data State = ANSWER | QUESTION
 
 type Button = { text : String, decision : Decision }
 
 type Game = { phase : Phase, state:State, girl:Girl, yesButton : Button, noButton : Button,
-  message : String, currentQuestion : Question, questions : [Question], musicPlay : Bool, isClick : Bool, isLevelUp : Bool, score : Int }
+  message : String, currentQuestion : Question, questions : [Question], bgm : String, isClick : Bool, isLevelUp : Bool, score : Int }
 
 defaultGame : Game
 defaultGame = {
@@ -43,7 +43,7 @@ defaultGame = {
     yesFace = NIKORI,
     noMessage = "聞こえてるじゃないっスか",
     noFace = NIKORI },
-  musicPlay = True,
+  bgm = "BGM1",
   isClick = False,
   isLevelUp = False,
   score = 0 }
@@ -74,7 +74,8 @@ stepState { seed } game =
         PROLOGUE -> { game | phase <- A, questions <- sampleQuestions seed, isLevelUp <- True }
         A -> { game | phase <- B, questions <- sampleQuestions2 seed, isLevelUp <- True }
         B -> { game | phase <- C, questions <- sampleQuestions3 seed, isLevelUp <- True }
-        C -> { game | phase <- D, questions <- questionsD, isLevelUp <- True }
+        C -> { game | phase <- D, questions <- questionsD, isLevelUp <- True , bgm <- "BGM2"}
+        D -> { game | phase <- E, questions <- questionsE, isLevelUp <- True , bgm <- "None" }
         GAMEOVER -> game
         _ -> { game | phase <- C, questions <- sampleQuestions3 seed, isLevelUp <- True }
   else game
@@ -99,11 +100,11 @@ updateGame ({ userInput , point } as input) ({ currentQuestion } as game) =
     QUESTION ->
         case userInput.decision of
           YES ->
-              if game.phase == D
+              if game.phase == D || game.phase == E
               then nextGame userInput { game | isClick <- True, score <- game.score + point }
               else { game | state <- ANSWER, message <- currentQuestion.yesMessage, isClick <- True, score <- game.score + point }
           NO ->
-              if game.phase == D
+              if game.phase == D || game.phase == E
               then { game | phase <- GAMEOVER, message <- "……そうっスか。ここで「いいえ」と言われたらおしまいっス。……やっぱダメだったスかぁ。先輩、また今度っス" }
               else 
                   { game | state <- ANSWER, message <- currentQuestion.noMessage, isClick <- True, score <- game.score + point }
@@ -183,6 +184,7 @@ displayPhase phase =
         A -> "★"
         B -> "★★"
         C -> "★★★"
+        D -> "★★★★"
         _ -> ""
   in
     (container width 30 middle
@@ -216,8 +218,8 @@ gameState = foldp stepGame defaultGame input
 
 main = lift display gameState
 
-port jsMusicPlay : Signal Bool
-port jsMusicPlay = .musicPlay <~ gameState
+port jsMusicPlay : Signal String
+port jsMusicPlay = .bgm <~ gameState
 
 port jsPlayClickSound : Signal Bool
 port jsPlayClickSound = .isClick <~ gameState
