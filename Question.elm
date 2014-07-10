@@ -19,7 +19,7 @@ phaseAQuestions = [
 phaseBQuestions = [
   {question = "先輩、仮に私が先輩のこと好きって言ったら、嬉しいッスか？", yesMessage = "いや、まあ嫌いっスけど", yesFace = NIKORI, noMessage = "先輩のくせに生意気っス", noFace = NIKORI},
   {question = "今日の夕飯は私が作ってあげるっス。嫌いなものあるっスか？", yesMessage = "駄目っスよ。大きくなれないっス。長生きも出来ないかも知れないっス……", yesFace = SYOBON, noMessage = "いい子っス。腕によりをかけて作るっスよ―！", noFace = NIKORI},
-  {question = "……質問ばかりでウザいっスか？", yesMessage = "ごめんなさい。申し訳ないっス。", yesFace = SYOBON, noMessage = "良かったっス。先輩のこともっと知りたいっス。", noFace = NIKORI},
+  {question = "……質問ばかりでウザいっスか？", yesMessage = "ごめんなさい。申し訳ないっス", yesFace = SYOBON, noMessage = "良かったっス。先輩のこともっと知りたいっス。", noFace = NIKORI},
   {question = "仮にこの世界に先輩と私しかいなかったらどうするッス？", yesMessage = "ふふふ", yesFace = NIKORI, noMessage = "ふふふ", noFace = NIKORI},
   {question = "先輩、たまには自分の意志を言って欲しいっス", yesMessage = "……", yesFace = NATURAL, noMessage = "……", noFace = NATURAL},
   {question = "親子丼が食べたいっス", yesMessage = "あ、私にはお母さんいないっス", yesFace = NIKORI, noMessage = "私、親子丼の三つ葉が好きなんスよね", noFace = NIKORI},
@@ -75,6 +75,6 @@ questionsE = [
   {question = "何やってるんだろう私……寂しいっス……", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},
   {question = "……偶然じゃないっス？", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},
   {question = "えへへ……虚しいっス……", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},
-  {question = "でも……偶然でも本当に嬉しかったんスよ……それは信じて欲しいっス", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},
+  {question = "でも……偶然でも本当に嬉しかったんスよ……うん……", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL},
   {question = "それじゃあ、えっと、星の数ほどの試行の後にまた会おうっス、センパイ", yesMessage = "", yesFace = NATURAL, noMessage = "", noFace = NATURAL}
   ]
