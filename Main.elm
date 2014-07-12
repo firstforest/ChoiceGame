@@ -2,6 +2,7 @@ module ChoiceGame where
 
 import Mouse
 import Graphics.Input
+import Graphics.Input.Field as Field
 import Question (..)
 import Girl (..)
 import Random
@@ -12,23 +13,26 @@ width = 320
 height = 480
 
 data Decision = YES | NO | NONE
-type UserInput = {decision : Decision, seed : Int}
+type UserInput = {decision : Decision, userName : Field.Content, seed : Int}
 
 decision : Graphics.Input.Input Decision
 decision = Graphics.Input.input NONE
 
+nameField : Graphics.Input.Input Field.Content
+nameField = Graphics.Input.input Field.noContent
+
 userInput : Signal UserInput
-userInput = UserInput <~ decision.signal ~ Random.range -10000 10000 (constant 0)
+userInput = UserInput <~ decision.signal ~ nameField.signal ~ Random.range -10000 10000 (constant 0)
 
 type Input = { userInput : UserInput , point : Int}
 
-data Phase = PROLOGUE | A | B | C | D | E | GAMEOVER
+data Phase = PROLOGUE | A | B | C | D | E | SCORE | GAMEOVER
 data State = ANSWER | QUESTION
 
 type Button = { text : String, decision : Decision }
 
 type Game = { phase : Phase, state:State, girl:Girl, yesButton : Button, noButton : Button,
-  message : String, currentQuestion : Question, questions : [Question], bgm : String, isClick : Bool, isLevelUp : Bool, score : Int , yesnum : Float }
+  message : String, currentQuestion : Question, questions : [Question], bgm : String, isClick : Bool, isLevelUp : Bool, score : Int , yesnum : Float , userName: Field.Content }
 
 defaultGame : Game
 defaultGame = {
@@ -49,7 +53,8 @@ defaultGame = {
   isClick = False,
   isLevelUp = False,
   score = 0,
-  yesnum = 0 }
+  yesnum = 0,
+  userName = Field.noContent }
 
 -- update --
 stepGirl : UserInput -> Question -> Girl -> Girl
@@ -79,6 +84,7 @@ stepState { seed } game =
         B -> { game | phase <- C, questions <- sampleQuestions3 seed, isLevelUp <- True }
         C -> { game | phase <- D, questions <- questionsD, isLevelUp <- True , bgm <- "BGM2"}
         D -> { game | phase <- E, questions <- questionsE, isLevelUp <- True , bgm <- "None" }
+        E -> { game | phase <- SCORE, questions <- questionsE }
         GAMEOVER -> game
         _ -> { game | phase <- C, questions <- sampleQuestions3 seed, isLevelUp <- True }
   else game
@@ -101,8 +107,12 @@ stepQuestion game =
 nextGame : UserInput -> Game -> Game
 nextGame userInput = stepQuestion . ( stepState userInput )
 
+updateUserName : Input -> Game -> Game
+updateUserName { userInput } game =
+  { game | userName <- userInput.userName }
+
 stepGame : Input -> Game -> Game
-stepGame input = (updateGirl input) . (updateGame input) . clearSound
+stepGame input = (updateGirl input) . (updateGame input) . clearSound . (updateUserName input)
 
 updateGame ({ userInput , point } as input) ({ currentQuestion } as game) =
   case game.state of
@@ -215,11 +225,23 @@ displayUI ({yesButton, noButton, message, phase, score} as game) =
     (spacer width 5),
     displayButtons yesButton noButton]
 
+displayScorePhase : Game -> Element
+displayScorePhase game =
+  flow down
+    [
+    Field.field Field.defaultStyle nameField.handle id "Type here!" game.userName
+    , plainText (game.userName).string
+    ]
+
 display : Game -> Element
-display ({girl} as game) =
-  layers [
-    displayGirl girl,
-    displayUI game] |> Graphics.Input.clickable decision.handle NONE
+display ({ girl } as game) =
+  if game.phase == SCORE
+  then
+    displayScorePhase game
+  else
+    layers [
+      displayGirl girl,
+      displayUI game] |> Graphics.Input.clickable decision.handle NONE
 
 input = lift2 Input userInput (Random.range 30 40 userInput)
 
