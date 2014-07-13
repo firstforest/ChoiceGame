@@ -75,19 +75,22 @@ updateGirl { userInput } ({ currentQuestion, girl, state } as game) =
     { game | girl <- nextGirl }
 
 stepState : UserInput -> Game -> Game
-stepState { seed } game = 
-  if (isEmpty game.questions)
-  then
-      case game.phase of
-        PROLOGUE -> { game | phase <- A, questions <- sampleQuestions seed, isLevelUp <- True }
-        A -> { game | phase <- B, questions <- sampleQuestions2 seed, isLevelUp <- True }
-        B -> { game | phase <- C, questions <- sampleQuestions3 seed, isLevelUp <- True }
-        C -> { game | phase <- D, questions <- questionsD, isLevelUp <- True , bgm <- "BGM2"}
-        D -> { game | phase <- E, questions <- questionsE, isLevelUp <- True , bgm <- "None" }
-        E -> { game | phase <- SCORE, questions <- questionsE }
-        GAMEOVER -> game
-        _ -> { game | phase <- C, questions <- sampleQuestions3 seed, isLevelUp <- True }
-  else game
+stepState { seed } game =
+    case game.phase of
+      PROLOGUE -> { game | phase <- A, questions <- sampleQuestions seed, isLevelUp <- True }
+      A -> { game | phase <- B, questions <- sampleQuestions2 seed, isLevelUp <- True }
+      B -> { game | phase <- C, questions <- sampleQuestions3 seed, isLevelUp <- True }
+      C -> { game | phase <- D, questions <- questionsD, isLevelUp <- True , bgm <- "BGM2"}
+      D -> { game | phase <- E, questions <- questionsE, isLevelUp <- True , bgm <- "None" }
+      E -> { game | phase <- SCORE, questions <- questionsE }
+      GAMEOVER -> game
+      _ -> game
+
+updateState : UserInput -> Game -> Game
+updateState userInput game =
+    if (isEmpty game.questions)
+    then stepState userInput game
+    else game
 
 formatMessage : Game -> String -> String
 formatMessage { yesnum } message =
@@ -105,7 +108,7 @@ stepQuestion game =
     { game | state <- QUESTION, message <- message, currentQuestion <- q, questions <- qs }
 
 nextGame : UserInput -> Game -> Game
-nextGame userInput = stepQuestion . ( stepState userInput )
+nextGame userInput = stepQuestion . ( updateState userInput )
 
 updateUserName : Input -> Game -> Game
 updateUserName { userInput } game =
