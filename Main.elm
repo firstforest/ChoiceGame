@@ -12,7 +12,7 @@ import String as S
 width = 320
 height = 480
 
-data Decision = YES | NO | NONE
+data Decision = YES | NO | NONE | NEXT
 type UserInput = {decision : Decision, userName : Field.Content, seed : Int}
 
 decision : Graphics.Input.Input Decision
@@ -129,6 +129,7 @@ updateGame ({ userInput , point } as input) ({ currentQuestion } as game) =
                   { game | state <- ANSWER, message <- currentQuestion.noMessage, isClick <- True, score <- game.score + point, yesnum <- 0 }
           NONE ->
             game
+          NEXT -> defaultGame
     ANSWER ->
         nextGame userInput game
 
@@ -225,12 +226,21 @@ displayUI ({yesButton, noButton, message, phase, score} as game) =
     (spacer width 5),
     displayButtons yesButton noButton]
 
+scoreMessage game =
+    "遊んでくれてありがとうっス、センパイ。\n"
+    ++ (show game.score)
+    ++ "点も取るなんてすごいっス。"
+    ++ "良ければ名前を教えてくださいっス！"
+
 displayScorePhase : Game -> Element
 displayScorePhase game =
   flow down
     [
-    Field.field Field.defaultStyle nameField.handle id "Type here!" game.userName
-    , plainText (game.userName).string
+     spacer width 50
+     , container width 50 middle
+     (Field.field Field.defaultStyle nameField.handle id "名前を入れてくださいっス" game.userName)
+     , displayMessage (scoreMessage game)
+     , container width 50 middle (displayButton decision.handle (Button "決定" NEXT))
     ]
 
 display : Game -> Element
