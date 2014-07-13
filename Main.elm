@@ -25,7 +25,7 @@ userInput = UserInput <~ decision.signal ~ nameField.signal ~ Random.range -1000
 
 type Input = { userInput : UserInput , point : Int}
 
-data Phase = PROLOGUE | A | B | C | D | E | SCORE | ENDING | GAMEOVER
+data Phase = PROLOGUE | A | B | C | D | E | SCORE | ENDING | GAMEOVER | END
 data State = ANSWER | QUESTION
 
 type Button = { text : String, decision : Decision }
@@ -83,7 +83,7 @@ stepState { seed } game =
       D -> { game | phase <- E, questions <- questionsE, isLevelUp <- True , bgm <- "None" }
       E -> { game | phase <- SCORE }
       SCORE -> { game | phase <- ENDING, state <- QUESTION }
-      ENDING -> defaultGame
+      ENDING -> { game | phase <- END }
       GAMEOVER -> defaultGame
       _ -> game
 
@@ -284,6 +284,7 @@ displayEndingMessage { userName } =
                                ++ "」……？\n"
                                ++ "そう言ったっス？　そう言ったっスか!?\n"
                                ++ "ふへ……ふへへ……こんにちはっス！")
+            , container width 50 middle (displayButton decision.handle (Button "こんにちは！" NEXT))
             ]
 
 displayEndingPhase : Game -> Element
@@ -292,11 +293,18 @@ displayEndingPhase game =
          , displayEndingMessage game
          ]
 
+displayEND : Element
+displayEND =
+  flow down [ container width 320 middle (toText "「いいえ、その答えは\"はい\"です」\n\n完" |> bold |> centered)
+            , container width 20 middle (plainText "Thank you for playing!")
+            ]
+
 display : Game -> Element
 display ({ girl } as game) =
   case game.phase of
     SCORE -> displayScorePhase game
     ENDING -> displayEndingPhase game
+    END -> displayEND
     _ -> layers [
           displayGirl girl,
           displayUI game] |> Graphics.Input.clickable decision.handle NONE
