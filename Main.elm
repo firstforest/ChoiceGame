@@ -82,23 +82,23 @@ stepState { seed } game =
       B -> { game | phase <- C, questions <- sampleQuestions3 seed, isLevelUp <- True }
       C -> { game | phase <- D, questions <- questionsD, isLevelUp <- True , bgm <- "BGM2"}
       D -> { game | phase <- E, questions <- questionsE, isLevelUp <- True , bgm <- "None" }
-      E -> { game | phase <- SCORE, questions <- questionsE }
-      SCORE -> { game | phase <- ENDING }
+      E -> { game | phase <- SCORE }
+      SCORE -> { game | phase <- ENDING, state <- QUESTION }
       ENDING -> defaultGame
       GAMEOVER -> game
       _ -> game
 
-isUpdateNeed : Game -> Bool
-isUpdateNeed { phase, questions } =
+isUpdateNeed : UserInput -> Game -> Bool
+isUpdateNeed { decision } { phase, questions } =
   case phase of
-    SCORE -> True
+    SCORE -> (decision == NEXT)
     ENDING -> True
     GAMEOVER -> True
     _ -> (isEmpty questions)
 
 updateState : UserInput -> Game -> Game
 updateState userInput game =
-    if isUpdateNeed game
+    if isUpdateNeed userInput game
     then stepState userInput game
     else game
 
@@ -117,8 +117,15 @@ stepQuestion game =
   in
     { game | state <- QUESTION, message <- message, currentQuestion <- q, questions <- qs }
 
+updateQuestion : Game -> Game
+updateQuestion game =
+  case game.phase of
+    SCORE -> game
+    ENDING -> game
+    GAMEOVER -> game
+    _ -> stepQuestion game
 nextGame : UserInput -> Game -> Game
-nextGame userInput = stepQuestion . ( updateState userInput )
+nextGame userInput = updateQuestion . ( updateState userInput )
 
 updateUserName : Input -> Game -> Game
 updateUserName { userInput } game =
