@@ -279,11 +279,11 @@ displayScorePhase game =
 displayEndingMessage : Game -> Element
 displayEndingMessage { userName } =
   flow down [ spacer width 320
-            , displayMessage ("……今なんて言ったっス\n「"
+            , displayMessage ("……今なんて言ったっス？\n「"
                                ++ userName.string
                                ++ "」……？\n"
                                ++ "そう言ったっス？　そう言ったっスか!?\n"
-                               ++ "ふへへ……ふへへへへ……")
+                               ++ "ふへ……ふへへ……こんにちはっス！")
             ]
 
 displayEndingPhase : Game -> Element
