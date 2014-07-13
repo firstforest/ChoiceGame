@@ -25,7 +25,7 @@ userInput = UserInput <~ decision.signal ~ nameField.signal ~ Random.range -1000
 
 type Input = { userInput : UserInput , point : Int}
 
-data Phase = PROLOGUE | A | B | C | D | E | SCORE | ENDING | GAMEOVER | END
+data Phase = OPENING | PROLOGUE | A | B | C | D | E | SCORE | ENDING | GAMEOVER | END
 data State = ANSWER | QUESTION
 
 type Button = { text : String, decision : Decision }
@@ -35,7 +35,7 @@ type Game = { phase : Phase, state:State, girl:Girl, yesButton : Button, noButto
 
 defaultGame : Game
 defaultGame = {
-  phase = PROLOGUE,
+  phase = OPENING,
   state = QUESTION,
   girl = { face = NATURAL },
   yesButton = {text = "はい", decision = YES },
@@ -76,6 +76,8 @@ updateGirl { userInput } ({ currentQuestion, girl, state } as game) =
 stepState : UserInput -> Game -> Game
 stepState { seed } game =
     case game.phase of
+      -- PROLOGUEの問題設定などはdefaultGameで行っているためここではphaseの変更のみ
+      OPENING -> { game | phase <- PROLOGUE }
       PROLOGUE -> { game | phase <- A, questions <- sampleQuestions seed, isLevelUp <- True }
       A -> { game | phase <- B, questions <- sampleQuestions2 seed, isLevelUp <- True }
       B -> { game | phase <- C, questions <- sampleQuestions3 seed, isLevelUp <- True }
@@ -90,6 +92,7 @@ stepState { seed } game =
 isUpdateNeed : UserInput -> Game -> Bool
 isUpdateNeed { decision } { phase, questions } =
   case phase of
+    OPENING -> (decision == NEXT)
     SCORE -> (decision == NEXT)
     ENDING -> True
     GAMEOVER -> True
@@ -140,6 +143,7 @@ stepGame input = (updateGirl input) . (updateGame input) . clearSound . (updateU
 stepScore : Int -> Game -> Int
 stepScore point { score, phase } =
   case phase of
+    OPENING -> score
     SCORE -> score
     ENDING -> score + point
     _ -> score + point
@@ -287,6 +291,22 @@ displayEndingMessage { userName } =
             , container width 50 middle (displayButton decision.handle (Button "こんにちは！" NEXT))
             ]
 
+displayRanking : Element
+displayRanking =
+  container width 150 middle [markdown|
+* su_pa_ : 849点
+* firstforest : 799点
+* AAA : 756点
+|]
+
+displayOpeningPhase : Game -> Element
+displayOpeningPhase game =
+  flow down [ spacer width 150
+            , container width 20 middle (toText "「いいえ、その答えは\"はい\"です」" |> bold |> centered)
+            , displayRanking
+            , container width 50 middle (displayButton decision.handle (Button "はじめる" NEXT))
+            ]
+
 displayEndingPhase : Game -> Element
 displayEndingPhase game =
   layers [ displayGirl game.girl
@@ -302,6 +322,7 @@ displayEND =
 display : Game -> Element
 display ({ girl } as game) =
   case game.phase of
+    OPENING -> displayOpeningPhase game
     SCORE -> displayScorePhase game
     ENDING -> displayEndingPhase game
     END -> displayEND
