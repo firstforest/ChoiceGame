@@ -6,7 +6,6 @@ import Graphics.Input.Field as Field
 import Question (..)
 import Girl (..)
 import Random
-import Json (..)
 import String as S
 
 width = 320
@@ -19,7 +18,7 @@ decision : Graphics.Input.Input Decision
 decision = Graphics.Input.input NONE
 
 nameField : Graphics.Input.Input Field.Content
-nameField = Graphics.Input.input Field.noContent
+nameField = Graphics.Input.input (Field.Content "noName" (Field.Selection 0 0 Field.Forward))
 
 userInput : Signal UserInput
 userInput = UserInput <~ decision.signal ~ nameField.signal ~ Random.range -10000 10000 (constant 0)
@@ -54,7 +53,7 @@ defaultGame = {
   isLevelUp = False,
   score = 0,
   yesnum = 0,
-  userName = Field.noContent }
+  userName = (Field.Content "noName" (Field.Selection 0 0 Field.Forward)) }
 
 -- update --
 stepGirl : UserInput -> Question -> Girl -> Girl
@@ -85,7 +84,7 @@ stepState { seed } game =
       E -> { game | phase <- SCORE }
       SCORE -> { game | phase <- ENDING, state <- QUESTION }
       ENDING -> defaultGame
-      GAMEOVER -> game
+      GAMEOVER -> defaultGame
       _ -> game
 
 isUpdateNeed : UserInput -> Game -> Bool
@@ -105,7 +104,7 @@ updateState userInput game =
 formatMessage : Game -> String -> String
 formatMessage { yesnum } message =
   S.join "" 
-  (map (\w -> if w == "{yesnum}" then toString "" (Number yesnum) else w)
+  (map (\w -> if w == "{yesnum}" then show yesnum else w)
     (S.split "/" message))
 
 stepQuestion : Game -> Game
@@ -129,7 +128,11 @@ nextGame userInput = updateQuestion . ( updateState userInput )
 
 updateUserName : Input -> Game -> Game
 updateUserName { userInput } game =
-  { game | userName <- userInput.userName }
+  let
+    userName = userInput.userName
+    nextUserName = { userName | string <- (String.left 20 userName.string) }
+  in
+    { game | userName <- nextUserName }
 
 stepGame : Input -> Game -> Game
 stepGame input = (updateGirl input) . (updateGame input) . clearSound . (updateUserName input)
@@ -263,15 +266,30 @@ displayScorePhase game =
      , container width 50 middle (displayButton decision.handle (Button "決定" NEXT))
     ]
 
+displayEndingMessage : Game -> Element
+displayEndingMessage { userName } =
+  flow down [ spacer width 320
+            , displayMessage ("……今なんて言ったっス\n「"
+                               ++ userName.string
+                               ++ "」……？\n"
+                               ++ "そう言ったっス？　そう言ったっスか!?\n"
+                               ++ "ふへへ……ふへへへへ……")
+            ]
+
+displayEndingPhase : Game -> Element
+displayEndingPhase game =
+  layers [ displayGirl game.girl
+         , displayEndingMessage game
+         ]
+
 display : Game -> Element
 display ({ girl } as game) =
-  if game.phase == SCORE
-  then
-    displayScorePhase game
-  else
-    layers [
-      displayGirl girl,
-      displayUI game] |> Graphics.Input.clickable decision.handle NONE
+  case game.phase of
+    SCORE -> displayScorePhase game
+    ENDING -> displayEndingPhase game
+    _ -> layers [
+          displayGirl girl,
+          displayUI game] |> Graphics.Input.clickable decision.handle NONE
 
 input = lift2 Input userInput (Random.range 30 40 userInput)
 
