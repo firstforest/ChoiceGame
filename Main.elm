@@ -137,19 +137,29 @@ updateUserName { userInput } game =
 stepGame : Input -> Game -> Game
 stepGame input = (updateGirl input) . (updateGame input) . clearSound . (updateUserName input)
 
+stepScore : Int -> Game -> Int
+stepScore point { score, phase } =
+  case phase of
+    SCORE -> score
+    ENDING -> score + point
+    _ -> score + point
+
 updateGame ({ userInput , point } as input) ({ currentQuestion } as game) =
   case game.state of
     QUESTION ->
+      let
+        nextScore = stepScore point game
+      in
         case userInput.decision of
           YES ->
               if game.phase == D || game.phase == E
-              then nextGame userInput { game | isClick <- True, score <- game.score + point , yesnum <- (game.yesnum + 1) }
-              else { game | state <- ANSWER, message <- currentQuestion.yesMessage, isClick <- True, score <- game.score + point, yesnum <- (game.yesnum + 1)  }
+              then nextGame userInput { game | isClick <- True, score <- nextScore , yesnum <- (game.yesnum + 1) }
+              else { game | state <- ANSWER, message <- currentQuestion.yesMessage, isClick <- True, score <- nextScore, yesnum <- (game.yesnum + 1)  }
           NO ->
               if game.phase == D || game.phase == E
               then { game | phase <- GAMEOVER, message <- "……そうっスか。ここで「いいえ」と言われたらおしまいっス。……やっぱダメだったスかぁ。先輩、また今度っス" }
               else 
-                  { game | state <- ANSWER, message <- currentQuestion.noMessage, isClick <- True, score <- game.score + point, yesnum <- 0 }
+                  { game | state <- ANSWER, message <- currentQuestion.noMessage, isClick <- True, score <- nextScore, yesnum <- 0 }
           NONE ->
             game
           NEXT -> stepState userInput game
