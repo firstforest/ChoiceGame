@@ -26,7 +26,7 @@ userInput = UserInput <~ decision.signal ~ nameField.signal ~ Random.range -1000
 
 type Input = { userInput : UserInput , point : Int}
 
-data Phase = PROLOGUE | A | B | C | D | E | SCORE | GAMEOVER
+data Phase = PROLOGUE | A | B | C | D | E | SCORE | ENDING | GAMEOVER
 data State = ANSWER | QUESTION
 
 type Button = { text : String, decision : Decision }
@@ -83,12 +83,22 @@ stepState { seed } game =
       C -> { game | phase <- D, questions <- questionsD, isLevelUp <- True , bgm <- "BGM2"}
       D -> { game | phase <- E, questions <- questionsE, isLevelUp <- True , bgm <- "None" }
       E -> { game | phase <- SCORE, questions <- questionsE }
+      SCORE -> { game | phase <- ENDING }
+      ENDING -> defaultGame
       GAMEOVER -> game
       _ -> game
 
+isUpdateNeed : Game -> Bool
+isUpdateNeed { phase, questions } =
+  case phase of
+    SCORE -> True
+    ENDING -> True
+    GAMEOVER -> True
+    _ -> (isEmpty questions)
+
 updateState : UserInput -> Game -> Game
 updateState userInput game =
-    if (isEmpty game.questions)
+    if isUpdateNeed game
     then stepState userInput game
     else game
 
@@ -132,7 +142,7 @@ updateGame ({ userInput , point } as input) ({ currentQuestion } as game) =
                   { game | state <- ANSWER, message <- currentQuestion.noMessage, isClick <- True, score <- game.score + point, yesnum <- 0 }
           NONE ->
             game
-          NEXT -> defaultGame
+          NEXT -> stepState userInput game
     ANSWER ->
         nextGame userInput game
 
