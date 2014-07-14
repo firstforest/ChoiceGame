@@ -216,13 +216,12 @@ displayButtons yesButton noButton =
 getGirlSrc : Face -> String
 getGirlSrc face =
   case face of
-    NATURAL -> "img/natural.jpg"
-    NIKORI -> "img/nikori.jpg"
-    SYOBON -> "img/syobon.jpg"
-    ELTSU -> "img/eltsu.jpg"
-    BIKKURI -> "img/bikkuri.jpg"
-    MU -> "img/mu.jpg"
-    EHEHE -> "img/ehehe.jpg"
+    NATURAL -> "img/natural.gif"
+    NIKORI -> "img/nikori.gif"
+    SYOBON -> "img/syobon.gif"
+    BIKKURI -> "img/bikkuri.gif"
+    MU -> "img/mu.gif"
+    EHEHE -> "img/ehehe.gif"
 
 displayGirl : Girl -> Element
 displayGirl girl = image width height (getGirlSrc girl.face)
