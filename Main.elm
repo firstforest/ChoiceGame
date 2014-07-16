@@ -7,6 +7,8 @@ import Question (..)
 import Girl (..)
 import Random
 import String as S
+import Http (..)
+import LoadAssets (..)
 
 width = 320
 height = 480
@@ -23,7 +25,7 @@ nameField = Graphics.Input.input (Field.Content "noName" (Field.Selection 0 0 Fi
 userInput : Signal UserInput
 userInput = UserInput <~ decision.signal ~ nameField.signal ~ Random.range -10000 10000 (constant 0)
 
-type Input = { userInput : UserInput , point : Int}
+type Input = { userInput : UserInput , point : Int, status : Status }
 
 data Phase = OPENING | PROLOGUE | A | B | C | D | E | SCORE | ENDING | GAMEOVER | END
 data State = ANSWER | QUESTION
@@ -329,9 +331,30 @@ display ({ girl } as game) =
           displayGirl girl,
           displayUI game] |> Graphics.Input.clickable decision.handle NONE
 
-input = lift2 Input userInput (Random.range 30 40 userInput)
+input = lift3 Input userInput (Random.range 30 40 userInput) status
 
-gameState = foldp stepGame defaultGame input
+responses : Signal [Response String] 
+responses = combine (map (sendGet . constant) 
+                             [ "img/ehehe.gif"
+                             , "img/natural.gif"
+                             , "img/bikkuri.gif"
+                             , "img/syobon.gif"
+                             , "img/nikori.gif"
+                             , "img/mu.gif"
+                             ])
+
+assets : Signal [Asset]
+assets = lift (map toAsset) responses
+
+status : Signal Status
+status = lift toStatus assets
+
+startGame ({status} as input) game =
+  case status of
+    Complete -> stepGame input game
+    _ -> game
+
+gameState = foldp startGame defaultGame input
 
 main = lift display gameState
 
