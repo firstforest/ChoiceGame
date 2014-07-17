@@ -27,7 +27,7 @@ userInput = UserInput <~ decision.signal ~ nameField.signal ~ Random.range -1000
 
 type Input = { userInput : UserInput , point : Int, status : Status }
 
-data Phase = OPENING | PROLOGUE | A | B | C | D | E | SCORE | ENDING | GAMEOVER | END
+data Phase = LOADING Float | OPENING | PROLOGUE | A | B | C | D | E | SCORE | ENDING | GAMEOVER | END
 data State = ANSWER | QUESTION
 
 type Button = { text : String, decision : Decision }
@@ -37,7 +37,7 @@ type Game = { phase : Phase, state:State, girl:Girl, yesButton : Button, noButto
 
 defaultGame : Game
 defaultGame = {
-  phase = OPENING,
+  phase = LOADING 0,
   state = QUESTION,
   girl = { face = NATURAL },
   yesButton = {text = "はい", decision = YES },
@@ -320,9 +320,17 @@ displayEND =
             , container width 20 middle (plainText "Thank you for playing!")
             ]
 
+displayLoading : Float -> Element
+displayLoading p =
+  flow down [ container width 320 middle
+                            ((toText ("NowLoading... " ++ (show (round p)) ++ "/100")) |> bold |> centered)
+            , container width 20 middle (plainText "Thank you for playing!")
+            ]
+  
 display : Game -> Element
 display ({ girl } as game) =
   case game.phase of
+    LOADING p -> displayLoading p
     OPENING -> displayOpeningPhase game
     SCORE -> displayScorePhase game
     ENDING -> displayEndingPhase game
@@ -349,9 +357,11 @@ assets = lift (map toAsset) responses
 status : Signal Status
 status = lift toStatus assets
 
+startGame : Input -> Game -> Game
 startGame ({status} as input) game =
   case status of
-    Complete -> stepGame input game
+    Complete -> stepGame input { game | phase <- OPENING }
+    InProgress p -> { game | phase <- LOADING (100 - p)}
     _ -> game
 
 gameState = foldp startGame defaultGame input
