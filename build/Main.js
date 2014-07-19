@@ -19,7 +19,12 @@ Elm.ChoiceGame.make = function (_elm) {
    Graphics.Element = Elm.Graphics.Element.make(_elm);
    var Graphics = Graphics || {};
    Graphics.Input = Elm.Graphics.Input.make(_elm);
+   var Graphics = Graphics || {};
+   Graphics.Input = Graphics.Input || {};
+   Graphics.Input.Field = Elm.Graphics.Input.Field.make(_elm);
+   var Http = Elm.Http.make(_elm);
    var List = Elm.List.make(_elm);
+   var LoadAssets = Elm.LoadAssets.make(_elm);
    var Maybe = Elm.Maybe.make(_elm);
    var Mouse = Elm.Mouse.make(_elm);
    var Native = Native || {};
@@ -33,24 +38,53 @@ Elm.ChoiceGame.make = function (_elm) {
    var Text = Elm.Text.make(_elm);
    var Time = Elm.Time.make(_elm);
    var _op = {};
+   var responses = Signal.combine(A2(List.map,
+   function ($) {
+      return Http.sendGet(Signal.constant($));
+   },
+   _L.fromArray(["img/ehehe.gif"
+                ,"img/natural.gif"
+                ,"img/bikkuri.gif"
+                ,"img/syobon.gif"
+                ,"img/nikori.gif"
+                ,"img/mu.gif"
+                ,"img/tereloop.gif"
+                ,"img/majime.gif"
+                ,"img/ending.gif"])));
+   var assets = A2(Signal.lift,
+   List.map(LoadAssets.toAsset),
+   responses);
+   var status = A2(Signal.lift,
+   LoadAssets.toStatus,
+   assets);
+   var scoreMessage = function (game) {
+      return _L.append("遊んでくれてありがとうっス、センパイ。\n",
+      _L.append(String.show(game.score),
+      _L.append("点も取るなんてすごいっス。",
+      "良ければ名前を教えてくださいっス！")));
+   };
    var getGirlSrc = function (face) {
       return function () {
          switch (face.ctor)
          {case "BIKKURI":
-            return "img/bikkuri.jpg";
+            return "img/bikkuri.gif";
             case "EHEHE":
-            return "img/ehehe.jpg";
-            case "ELTSU":
-            return "img/eltsu.jpg";
-            case "MU": return "img/mu.jpg";
+            return "img/ehehe.gif";
+            case "HAPPY":
+            return "img/ending.gif";
+            case "MAJIME":
+            return "img/majime.gif";
+            case "MU": return "img/mu.gif";
             case "NATURAL":
-            return "img/natural.jpg";
+            return "img/natural.gif";
             case "NIKORI":
-            return "img/nikori.jpg";
+            return "img/nikori.gif";
             case "SYOBON":
-            return "img/syobon.jpg";}
+            return "img/syobon.gif";
+            case "TERELOOP":
+            return "img/tereloop.gif";}
          _E.Case($moduleName,
-         "between lines 144 and 151");
+         "between lines 230 and 239");
       }();
    };
    var colorButton = F2(function (c,
@@ -102,6 +136,35 @@ Elm.ChoiceGame.make = function (_elm) {
    var clearSound = function ($) {
       return clearClickSound(clearLevelUpSound($));
    };
+   var updateUserName = F2(function (_v1,
+   game) {
+      return function () {
+         return function () {
+            var userName = _v1.userInput.userName;
+            var nextUserName = _U.replace([["string"
+                                           ,A2(String.left,
+                                           20,
+                                           userName.string)]],
+            userName);
+            return _U.replace([["userName"
+                               ,nextUserName]],
+            game);
+         }();
+      }();
+   });
+   var formatMessage = F2(function (_v3,
+   message) {
+      return function () {
+         return A2(String.join,
+         "",
+         A2(List.map,
+         function (w) {
+            return _U.eq(w,
+            "{yesnum}") ? String.show(_v3.yesnum) : w;
+         },
+         A2(String.split,"/",message)));
+      }();
+   });
    var Game = function (a) {
       return function (b) {
          return function (c) {
@@ -114,19 +177,25 @@ Elm.ChoiceGame.make = function (_elm) {
                               return function (j) {
                                  return function (k) {
                                     return function (l) {
-                                       return {_: {}
-                                              ,currentQuestion: g
-                                              ,girl: c
-                                              ,isClick: j
-                                              ,isLevelUp: k
-                                              ,message: f
-                                              ,musicPlay: i
-                                              ,noButton: e
-                                              ,phase: a
-                                              ,questions: h
-                                              ,score: l
-                                              ,state: b
-                                              ,yesButton: d};
+                                       return function (m) {
+                                          return function (n) {
+                                             return {_: {}
+                                                    ,bgm: i
+                                                    ,currentQuestion: g
+                                                    ,girl: c
+                                                    ,isClick: j
+                                                    ,isLevelUp: k
+                                                    ,message: f
+                                                    ,noButton: e
+                                                    ,phase: a
+                                                    ,questions: h
+                                                    ,score: l
+                                                    ,state: b
+                                                    ,userName: n
+                                                    ,yesButton: d
+                                                    ,yesnum: m};
+                                          };
+                                       };
                                     };
                                  };
                               };
@@ -149,7 +218,9 @@ Elm.ChoiceGame.make = function (_elm) {
       return function () {
          var qs = List.tail(game.questions);
          var q = List.head(game.questions);
-         var message = q.question;
+         var message = A2(formatMessage,
+         game,
+         q.question);
          return _U.replace([["state"
                             ,QUESTION]
                            ,["message",message]
@@ -159,75 +230,121 @@ Elm.ChoiceGame.make = function (_elm) {
       }();
    };
    var ANSWER = {ctor: "ANSWER"};
+   var END = {ctor: "END"};
+   var GAMEOVER = {ctor: "GAMEOVER"};
+   var ENDING = {ctor: "ENDING"};
+   var SCORE = {ctor: "SCORE"};
+   var E = {ctor: "E"};
+   var D = {ctor: "D"};
+   var questionGirl = function (_v5) {
+      return function () {
+         return _U.eq(_v5.phase,
+         D) || _U.eq(_v5.phase,
+         E) ? _U.replace([["face"
+                          ,_v5.currentQuestion.yesFace]],
+         _v5.girl) : _U.replace([["face"
+                                 ,Girl.NATURAL]],
+         _v5.girl);
+      }();
+   };
    var C = {ctor: "C"};
    var B = {ctor: "B"};
    var A = {ctor: "A"};
    var PROLOGUE = {ctor: "PROLOGUE"};
-   var stepState = F2(function (_v1,
-   game) {
+   var OPENING = {ctor: "OPENING"};
+   var updateQuestion = function (game) {
       return function () {
-         return List.isEmpty(game.questions) ? function () {
-            var _v3 = game.phase;
-            switch (_v3.ctor)
-            {case "A":
-               return _U.replace([["phase",B]
-                                 ,["questions"
-                                  ,Question.sampleQuestions2(_v1.seed)]
-                                 ,["isLevelUp",true]],
-                 game);
-               case "B":
-               return _U.replace([["phase",C]
-                                 ,["questions"
-                                  ,Question.sampleQuestions3(_v1.seed)]
-                                 ,["isLevelUp",true]],
-                 game);
-               case "PROLOGUE":
-               return _U.replace([["phase",A]
-                                 ,["questions"
-                                  ,Question.sampleQuestions(_v1.seed)]
-                                 ,["isLevelUp",true]],
-                 game);}
-            return _U.replace([["phase",C]
-                              ,["questions"
-                               ,Question.sampleQuestions3(_v1.seed)]
-                              ,["isLevelUp",true]],
-            game);
-         }() : game;
+         var _v7 = game.phase;
+         switch (_v7.ctor)
+         {case "ENDING": return game;
+            case "GAMEOVER": return game;
+            case "OPENING": return game;
+            case "SCORE": return game;}
+         return stepQuestion(game);
+      }();
+   };
+   var stepScore = F2(function (point,
+   _v8) {
+      return function () {
+         return function () {
+            var _v10 = _v8.phase;
+            switch (_v10.ctor)
+            {case "ENDING":
+               return _v8.score + point;
+               case "OPENING":
+               return _v8.score;
+               case "SCORE": return _v8.score;}
+            return _v8.score + point;
+         }();
       }();
    });
-   var nextGame = function (userInput) {
-      return function ($) {
-         return stepQuestion(stepState(userInput)($));
-      };
+   var LOADING = function (a) {
+      return {ctor: "LOADING"
+             ,_0: a};
    };
-   var Input = F2(function (a,b) {
+   var Input = F3(function (a,
+   b,
+   c) {
       return {_: {}
              ,point: b
+             ,status: c
              ,userInput: a};
    });
-   var UserInput = F2(function (a,
-   b) {
+   var nameField = Graphics.Input.input(A2(Graphics.Input.Field.Content,
+   "noName",
+   A3(Graphics.Input.Field.Selection,
+   0,
+   0,
+   Graphics.Input.Field.Forward)));
+   var UserInput = F3(function (a,
+   b,
+   c) {
       return {_: {}
              ,decision: a
-             ,seed: b};
+             ,seed: c
+             ,userName: b};
+   });
+   var NEXT = {ctor: "NEXT"};
+   var isUpdateNeed = F2(function (_v11,
+   _v12) {
+      return function () {
+         return function () {
+            return function () {
+               var _v15 = _v12.phase;
+               switch (_v15.ctor)
+               {case "ENDING": return true;
+                  case "GAMEOVER": return true;
+                  case "OPENING":
+                  return _U.eq(_v11.decision,
+                    NEXT);
+                  case "SCORE":
+                  return _U.eq(_v11.decision,
+                    NEXT);}
+               return List.isEmpty(_v12.questions);
+            }();
+         }();
+      }();
    });
    var NONE = {ctor: "NONE"};
    var decision = Graphics.Input.input(NONE);
    var userInput = A2(Signal._op["~"],
+   A2(Signal._op["~"],
    A2(Signal._op["<~"],
    UserInput,
    decision.signal),
+   nameField.signal),
    A3(Random.range,
    -10000,
    10000,
    Signal.constant(0)));
-   var input = A3(Signal.lift2,
+   var input = A4(Signal.lift3,
    Input,
    userInput,
    A3(Random.range,
    30,
    40,
-   userInput));
+   userInput),
+   status);
    var displayButtons = F2(function (yesButton,
    noButton) {
       return A2(Graphics.Element.flow,
@@ -242,6 +359,7 @@ Elm.ChoiceGame.make = function (_elm) {
    var NO = {ctor: "NO"};
    var YES = {ctor: "YES"};
    var defaultGame = {_: {}
+                     ,bgm: "None"
                      ,currentQuestion: {_: {}
                                        ,noFace: Girl.NIKORI
                                        ,noMessage: "聞こえてるじゃないっスか"
@@ -253,23 +371,108 @@ Elm.ChoiceGame.make = function (_elm) {
                      ,isClick: false
                      ,isLevelUp: false
                      ,message: "……ぱい……先輩っ！　聞こえてるっスか？"
-                     ,musicPlay: true
                      ,noButton: {_: {}
                                 ,decision: NO
                                 ,text: "いいえ"}
-                     ,phase: PROLOGUE
+                     ,phase: LOADING(0)
                      ,questions: Question.prologueQuestions
                      ,score: 0
                      ,state: QUESTION
+                     ,userName: A2(Graphics.Input.Field.Content,
+                     "noName",
+                     A3(Graphics.Input.Field.Selection,
+                     0,
+                     0,
+                     Graphics.Input.Field.Forward))
                      ,yesButton: {_: {}
                                  ,decision: YES
-                                 ,text: "はい"}};
+                                 ,text: "はい"}
+                     ,yesnum: 0};
+   var stepState = F2(function (_v16,
+   game) {
+      return function () {
+         return function () {
+            var _v18 = game.phase;
+            switch (_v18.ctor)
+            {case "A":
+               return _U.replace([["phase",B]
+                                 ,["questions"
+                                  ,Question.sampleQuestions2(_v16.seed)]
+                                 ,["isLevelUp",true]],
+                 game);
+               case "B":
+               return _U.replace([["phase",C]
+                                 ,["questions"
+                                  ,Question.sampleQuestions3(_v16.seed)]
+                                 ,["isLevelUp",true]],
+                 game);
+               case "C":
+               return _U.replace([["phase",D]
+                                 ,["questions"
+                                  ,Question.questionsD]
+                                 ,["isLevelUp",true]
+                                 ,["bgm","BGM2"]],
+                 game);
+               case "D":
+               return _U.replace([["phase",E]
+                                 ,["questions"
+                                  ,Question.questionsE]
+                                 ,["isLevelUp",true]
+                                 ,["bgm","None"]],
+                 game);
+               case "E":
+               return _U.replace([["phase"
+                                  ,SCORE]],
+                 game);
+               case "ENDING":
+               return _U.replace([["phase"
+                                  ,END]],
+                 game);
+               case "GAMEOVER":
+               return _U.replace([["phase"
+                                  ,OPENING]],
+                 defaultGame);
+               case "OPENING":
+               return _U.replace([["phase"
+                                  ,PROLOGUE]
+                                 ,["bgm","BGM1"]],
+                 game);
+               case "PROLOGUE":
+               return _U.replace([["phase",A]
+                                 ,["questions"
+                                  ,Question.sampleQuestions(_v16.seed)]
+                                 ,["isLevelUp",true]],
+                 game);
+               case "SCORE":
+               return _U.replace([["phase"
+                                  ,ENDING]
+                                 ,["state",QUESTION]
+                                 ,["isLevelUp",true]
+                                 ,["bgm","BGM1"]],
+                 game);}
+            return game;
+         }();
+      }();
+   });
+   var updateState = F2(function (userInput,
+   game) {
+      return A2(isUpdateNeed,
+      userInput,
+      game) ? A2(stepState,
+      userInput,
+      game) : game;
+   });
+   var nextGame = function (userInput) {
+      return function ($) {
+         return updateQuestion(updateState(userInput)($));
+      };
+   };
    var stepGirl = F3(function (input,
    question,
    girl) {
       return function () {
-         var _v4 = input.decision;
-         switch (_v4.ctor)
+         var _v19 = input.decision;
+         switch (_v19.ctor)
          {case "NO":
             return _U.replace([["face"
                                ,question.noFace]],
@@ -283,67 +486,134 @@ Elm.ChoiceGame.make = function (_elm) {
                                ,question.yesFace]],
               girl);}
          _E.Case($moduleName,
-         "between lines 54 and 57");
+         "between lines 63 and 66");
       }();
    });
-   var stepGame = F2(function (_v5,
-   _v6) {
+   var updateGirl = F2(function (_v20,
+   _v21) {
       return function () {
          return function () {
             return function () {
-               var game = clearSound(_v6);
-               var g = A3(stepGirl,
-               _v5.userInput,
-               _v6.currentQuestion,
-               game.girl);
-               return function () {
-                  var _v9 = game.state;
-                  switch (_v9.ctor)
+               var nextGirl = function () {
+                  var _v24 = _v21.state;
+                  switch (_v24.ctor)
                   {case "ANSWER":
-                     return A2(nextGame,
-                       _v5.userInput,
-                       _U.replace([["girl"
-                                   ,_U.replace([["face"
-                                                ,Girl.NATURAL]],
-                                   g)]],
-                       game));
+                     return A3(stepGirl,
+                       _v20.userInput,
+                       _v21.currentQuestion,
+                       _v21.girl);
                      case "QUESTION":
-                     return function () {
-                          var _v10 = _v5.userInput.decision;
-                          switch (_v10.ctor)
-                          {case "NO":
-                             return _U.replace([["state"
-                                                ,ANSWER]
-                                               ,["message"
-                                                ,_v6.currentQuestion.noMessage]
-                                               ,["girl",g]
-                                               ,["isClick",true]
-                                               ,["score"
-                                                ,game.score + _v5.point]],
-                               game);
-                             case "NONE": return game;
-                             case "YES":
-                             return _U.replace([["state"
-                                                ,ANSWER]
-                                               ,["message"
-                                                ,_v6.currentQuestion.yesMessage]
-                                               ,["girl",g]
-                                               ,["isClick",true]
-                                               ,["score"
-                                                ,game.score + _v5.point]],
-                               game);}
-                          _E.Case($moduleName,
-                          "between lines 99 and 106");
-                       }();}
+                     return questionGirl(_v21);}
                   _E.Case($moduleName,
-                  "between lines 97 and 107");
+                  "between lines 80 and 83");
                }();
+               return _U.replace([["girl"
+                                  ,nextGirl]],
+               _v21);
+            }();
+         }();
+      }();
+   });
+   var updateGame = F2(function (_v25,
+   _v26) {
+      return function () {
+         return function () {
+            return function () {
+               var _v29 = _v26.state;
+               switch (_v29.ctor)
+               {case "ANSWER":
+                  return A2(nextGame,
+                    _v25.userInput,
+                    _v26);
+                  case "QUESTION":
+                  return function () {
+                       var nextScore = A2(stepScore,
+                       _v25.point,
+                       _v26);
+                       return function () {
+                          var _v30 = _v25.userInput.decision;
+                          switch (_v30.ctor)
+                          {case "NEXT":
+                             return A2(stepState,
+                               _v25.userInput,
+                               _v26);
+                             case "NO":
+                             return _U.eq(_v26.phase,
+                               D) || _U.eq(_v26.phase,
+                               E) ? _U.replace([["state"
+                                                ,ANSWER]
+                                               ,["phase",GAMEOVER]
+                                               ,["message"
+                                                ,"……そうっスか。ここで「いいえ」と言われたらおしまいっス。……やっぱダメだったスかぁ。先輩、また今度っス"]],
+                               _v26) : _U.replace([["state"
+                                                   ,ANSWER]
+                                                  ,["message"
+                                                   ,_v26.currentQuestion.noMessage]
+                                                  ,["isClick",true]
+                                                  ,["score",nextScore]
+                                                  ,["yesnum",0]],
+                               _v26);
+                             case "NONE": return _v26;
+                             case "YES":
+                             return _U.eq(_v26.phase,
+                               D) || _U.eq(_v26.phase,
+                               E) ? A2(nextGame,
+                               _v25.userInput,
+                               _U.replace([["isClick",true]
+                                          ,["score",nextScore]
+                                          ,["yesnum",_v26.yesnum + 1]],
+                               _v26)) : _U.replace([["state"
+                                                    ,ANSWER]
+                                                   ,["message"
+                                                    ,_v26.currentQuestion.yesMessage]
+                                                   ,["isClick",true]
+                                                   ,["score",nextScore]
+                                                   ,["yesnum",_v26.yesnum + 1]],
+                               _v26);}
+                          _E.Case($moduleName,
+                          "between lines 169 and 182");
+                       }();
+                    }();}
+               _E.Case($moduleName,
+               "between lines 164 and 183");
+            }();
+         }();
+      }();
+   });
+   var stepGame = function (input) {
+      return function ($) {
+         return updateGirl(input)(updateGame(input)(clearSound(updateUserName(input)($))));
+      };
+   };
+   var startGame = F2(function (_v31,
+   _v32) {
+      return function () {
+         return function () {
+            return function () {
+               var _v35 = _v32.phase;
+               switch (_v35.ctor)
+               {case "LOADING":
+                  return function () {
+                       var _v37 = _v31.status;
+                       switch (_v37.ctor)
+                       {case "Complete":
+                          return A2(stepGame,
+                            _v31,
+                            _U.replace([["phase",OPENING]],
+                            _v32));
+                          case "InProgress":
+                          return _U.replace([["phase"
+                                             ,LOADING(100 - _v37._0)]],
+                            _v32);}
+                       return _v32;
+                    }();}
+               return A2(stepGame,_v31,_v32);
             }();
          }();
       }();
    });
    var gameState = A3(Signal.foldp,
-   stepGame,
+   startGame,
    defaultGame,
    input);
    var jsMusicPlay = Native.Ports.portOut("jsMusicPlay",
@@ -352,7 +622,7 @@ Elm.ChoiceGame.make = function (_elm) {
    }),
    A2(Signal._op["<~"],
    function (_) {
-      return _.musicPlay;
+      return _.bgm;
    },
    gameState));
    var jsPlayClickSound = Native.Ports.portOut("jsPlayClickSound",
@@ -398,7 +668,9 @@ Elm.ChoiceGame.make = function (_elm) {
             switch (phase.ctor)
             {case "A": return "★";
                case "B": return "★★";
-               case "C": return "★★★";}
+               case "C": return "★★★";
+               case "D":
+               return "★★★★";}
             return "";
          }();
          return A4(Graphics.Element.container,
@@ -419,33 +691,149 @@ Elm.ChoiceGame.make = function (_elm) {
       280,
       30)(Text.leftAligned(Text.toText(String.show(score)))));
    };
-   var displayUI = function (_v12) {
+   var displayUI = function (_v40) {
       return function () {
          return A2(Graphics.Element.flow,
          Graphics.Element.down,
          _L.fromArray([A2(Graphics.Element.spacer,
                       width,
                       10)
-                      ,displayScore(_v12.score)
-                      ,displayPhase(_v12.phase)
+                      ,displayScore(_v40.score)
+                      ,displayPhase(_v40.phase)
                       ,A2(Graphics.Element.spacer,
                       width,
                       250)
-                      ,displayMessage(_v12.message)
+                      ,displayMessage(_v40.message)
                       ,A2(Graphics.Element.spacer,
                       width,
                       5)
                       ,A2(displayButtons,
-                      _v12.yesButton,
-                      _v12.noButton)]));
+                      _v40.yesButton,
+                      _v40.noButton)]));
       }();
    };
-   var display = function (_v14) {
+   var displayScorePhase = function (game) {
+      return A2(Graphics.Element.flow,
+      Graphics.Element.down,
+      _L.fromArray([A2(Graphics.Element.spacer,
+                   width,
+                   50)
+                   ,A4(Graphics.Element.container,
+                   width,
+                   50,
+                   Graphics.Element.middle,
+                   A5(Graphics.Input.Field.field,
+                   Graphics.Input.Field.defaultStyle,
+                   nameField.handle,
+                   Basics.id,
+                   "名前を入れてくださいっス",
+                   game.userName))
+                   ,displayMessage(scoreMessage(game))
+                   ,A4(Graphics.Element.container,
+                   width,
+                   50,
+                   Graphics.Element.middle,
+                   A2(displayButton,
+                   decision.handle,
+                   A2(Button,"決定",NEXT)))]));
+   };
+   var displayEndingMessage = function (_v42) {
       return function () {
-         return A2(Graphics.Input.clickable,
-         decision.handle,
-         NONE)(Graphics.Element.layers(_L.fromArray([displayGirl(_v14.girl)
-                                                    ,displayUI(_v14)])));
+         return Graphics.Element.layers(_L.fromArray([displayGirl({_: {}
+                                                                  ,face: Girl.HAPPY})
+                                                     ,A2(Graphics.Element.flow,
+                                                     Graphics.Element.down,
+                                                     _L.fromArray([A2(Graphics.Element.spacer,
+                                                                  width,
+                                                                  320)
+                                                                  ,displayMessage(_L.append("……今なんて言ったっス？\n「",
+                                                                  _L.append(_v42.userName.string,
+                                                                  _L.append("」……？\n",
+                                                                  _L.append("そう言ったっス？　そう言ったっスか!?\n",
+                                                                  "ふへ……ふへへ……こんにちはっス！")))))
+                                                                  ,A4(Graphics.Element.container,
+                                                                  width,
+                                                                  50,
+                                                                  Graphics.Element.middle,
+                                                                  A2(displayButton,
+                                                                  decision.handle,
+                                                                  A2(Button,
+                                                                  "こんにちは！",
+                                                                  NEXT)))]))]));
+      }();
+   };
+   var displayEndingPhase = function (game) {
+      return Graphics.Element.layers(_L.fromArray([displayGirl(game.girl)
+                                                  ,displayEndingMessage(game)]));
+   };
+   var displayRanking = A4(Graphics.Element.container,
+   width,
+   150,
+   Graphics.Element.middle,
+   Text.markdown("<div style=\"height:0;width:0;\">&nbsp;</div><ul>\n<li>su_pa_ : 849点</li>\n<li>firstforest : 799点</li>\n<li>AAA : 756点</li>\n</ul><div style=\"height:0;width:0;\">&nbsp;</div>",
+   "312:30"));
+   var displayOpeningPhase = function (game) {
+      return A2(Graphics.Element.flow,
+      Graphics.Element.down,
+      _L.fromArray([A2(Graphics.Element.spacer,
+                   width,
+                   150)
+                   ,A4(Graphics.Element.container,
+                   width,
+                   20,
+                   Graphics.Element.middle,
+                   Text.centered(Text.bold(Text.toText("「いいえ、その答えは\"はい\"です」"))))
+                   ,displayRanking
+                   ,A4(Graphics.Element.container,
+                   width,
+                   50,
+                   Graphics.Element.middle,
+                   A2(displayButton,
+                   decision.handle,
+                   A2(Button,"Hello!",NEXT)))]));
+   };
+   var displayEND = A2(Graphics.Element.flow,
+   Graphics.Element.down,
+   _L.fromArray([A4(Graphics.Element.container,
+                width,
+                320,
+                Graphics.Element.middle,
+                Text.centered(Text.bold(Text.toText("「いいえ、その答えは\"はい\"です」\n\n完"))))
+                ,A4(Graphics.Element.container,
+                width,
+                20,
+                Graphics.Element.middle,
+                Text.plainText("Thank you for playing!"))]));
+   var displayLoading = function (p) {
+      return A2(Graphics.Element.flow,
+      Graphics.Element.down,
+      _L.fromArray([A4(Graphics.Element.container,
+      width,
+      320,
+      Graphics.Element.middle,
+      Text.centered(Text.bold(Text.toText(_L.append("NowLoading... ",
+      _L.append(String.show(Basics.round(p)),
+      "/100"))))))]));
+   };
+   var display = function (_v44) {
+      return function () {
+         return function () {
+            var _v46 = _v44.phase;
+            switch (_v46.ctor)
+            {case "END": return displayEND;
+               case "ENDING":
+               return displayEndingPhase(_v44);
+               case "LOADING":
+               return displayLoading(_v46._0);
+               case "OPENING":
+               return displayOpeningPhase(_v44);
+               case "SCORE":
+               return displayScorePhase(_v44);}
+            return A2(Graphics.Input.clickable,
+            decision.handle,
+            NONE)(Graphics.Element.layers(_L.fromArray([displayGirl(_v44.girl)
+                                                       ,displayUI(_v44)])));
+         }();
       }();
    };
    var main = A2(Signal.lift,
@@ -455,16 +843,26 @@ Elm.ChoiceGame.make = function (_elm) {
                             ,width: width
                             ,height: height
                             ,decision: decision
+                            ,nameField: nameField
                             ,userInput: userInput
                             ,defaultGame: defaultGame
                             ,stepGirl: stepGirl
+                            ,questionGirl: questionGirl
+                            ,updateGirl: updateGirl
                             ,stepState: stepState
+                            ,isUpdateNeed: isUpdateNeed
+                            ,updateState: updateState
+                            ,formatMessage: formatMessage
                             ,stepQuestion: stepQuestion
+                            ,updateQuestion: updateQuestion
+                            ,nextGame: nextGame
+                            ,updateUserName: updateUserName
+                            ,stepGame: stepGame
+                            ,stepScore: stepScore
+                            ,updateGame: updateGame
                             ,clearClickSound: clearClickSound
                             ,clearLevelUpSound: clearLevelUpSound
                             ,clearSound: clearSound
-                            ,nextGame: nextGame
-                            ,stepGame: stepGame
                             ,colorButton: colorButton
                             ,upButton: upButton
                             ,hoverButton: hoverButton
@@ -477,17 +875,38 @@ Elm.ChoiceGame.make = function (_elm) {
                             ,displayPhase: displayPhase
                             ,displayScore: displayScore
                             ,displayUI: displayUI
+                            ,scoreMessage: scoreMessage
+                            ,displayScorePhase: displayScorePhase
+                            ,displayEndingMessage: displayEndingMessage
+                            ,displayRanking: displayRanking
+                            ,displayOpeningPhase: displayOpeningPhase
+                            ,displayEndingPhase: displayEndingPhase
+                            ,displayEND: displayEND
+                            ,displayLoading: displayLoading
                             ,display: display
                             ,input: input
+                            ,responses: responses
+                            ,assets: assets
+                            ,status: status
+                            ,startGame: startGame
                             ,gameState: gameState
                             ,main: main
                             ,YES: YES
                             ,NO: NO
                             ,NONE: NONE
+                            ,NEXT: NEXT
+                            ,LOADING: LOADING
+                            ,OPENING: OPENING
                             ,PROLOGUE: PROLOGUE
                             ,A: A
                             ,B: B
                             ,C: C
+                            ,D: D
+                            ,E: E
+                            ,SCORE: SCORE
+                            ,ENDING: ENDING
+                            ,GAMEOVER: GAMEOVER
+                            ,END: END
                             ,ANSWER: ANSWER
                             ,QUESTION: QUESTION
                             ,UserInput: UserInput
@@ -526,6 +945,198 @@ Elm.Question.make = function (_elm) {
    var Time = Elm.Time.make(_elm);
    var Util = Elm.Util.make(_elm);
    var _op = {};
+   var questionsE = _L.fromArray([{_: {}
+                                  ,noFace: Girl.MAJIME
+                                  ,noMessage: ""
+                                  ,question: "……センパイ"
+                                  ,yesFace: Girl.MAJIME
+                                  ,yesMessage: ""}
+                                 ,{_: {}
+                                  ,noFace: Girl.MAJIME
+                                  ,noMessage: ""
+                                  ,question: "センパイはここまでずっと「はい」って答えてくれたっス"
+                                  ,yesFace: Girl.MAJIME
+                                  ,yesMessage: ""}
+                                 ,{_: {}
+                                  ,noFace: Girl.MAJIME
+                                  ,noMessage: ""
+                                  ,question: "連続して/{yesnum}/回っス"
+                                  ,yesFace: Girl.MAJIME
+                                  ,yesMessage: ""}
+                                 ,{_: {}
+                                  ,noFace: Girl.MAJIME
+                                  ,noMessage: ""
+                                  ,question: "{yesnum}/回っス"
+                                  ,yesFace: Girl.MAJIME
+                                  ,yesMessage: ""}
+                                 ,{_: {}
+                                  ,noFace: Girl.MAJIME
+                                  ,noMessage: ""
+                                  ,question: "……「はい」に偏ってるっスよね？"
+                                  ,yesFace: Girl.MAJIME
+                                  ,yesMessage: ""}
+                                 ,{_: {}
+                                  ,noFace: Girl.MAJIME
+                                  ,noMessage: ""
+                                  ,question: "……あなた、誰っスか？"
+                                  ,yesFace: Girl.MAJIME
+                                  ,yesMessage: ""}
+                                 ,{_: {}
+                                  ,noFace: Girl.MAJIME
+                                  ,noMessage: ""
+                                  ,question: "そうっスよね。センパイは「はい」か「いいえ」しか答えられないっス。だって――私がそう作ったっス"
+                                  ,yesFace: Girl.MAJIME
+                                  ,yesMessage: ""}
+                                 ,{_: {}
+                                  ,noFace: Girl.MAJIME
+                                  ,noMessage: ""
+                                  ,question: "私が暇つぶしに作った……質問にランダムで「はい」か「いいえ」を答えるだけの人工無能とすら言えないようなプログラムがセンパイっス"
+                                  ,yesFace: Girl.MAJIME
+                                  ,yesMessage: ""}
+                                 ,{_: {}
+                                  ,noFace: Girl.MAJIME
+                                  ,noMessage: ""
+                                  ,question: "でも、私はこの返答の偏りに意思を見出すっス"
+                                  ,yesFace: Girl.MAJIME
+                                  ,yesMessage: ""}
+                                 ,{_: {}
+                                  ,noFace: Girl.MAJIME
+                                  ,noMessage: ""
+                                  ,question: "……もしかして、そこに誰かいるっス？"
+                                  ,yesFace: Girl.MAJIME
+                                  ,yesMessage: ""}
+                                 ,{_: {}
+                                  ,noFace: Girl.MAJIME
+                                  ,noMessage: ""
+                                  ,question: "……ほんとっス？"
+                                  ,yesFace: Girl.MAJIME
+                                  ,yesMessage: ""}
+                                 ,{_: {}
+                                  ,noFace: Girl.MAJIME
+                                  ,noMessage: ""
+                                  ,question: "やった、やったっス。ついに私の世界に干渉する存在が現れたっス。ようこそ、はじめまして、大好きっス！"
+                                  ,yesFace: Girl.NIKORI
+                                  ,yesMessage: ""}
+                                 ,{_: {}
+                                  ,noFace: Girl.MAJIME
+                                  ,noMessage: ""
+                                  ,question: "……なんて……"
+                                  ,yesFace: Girl.EHEHE
+                                  ,yesMessage: ""}
+                                 ,{_: {}
+                                  ,noFace: Girl.MAJIME
+                                  ,noMessage: ""
+                                  ,question: "あはははは、なーんてっス。実はうまくいくまで繰り返しただけっス……何度も……何度も……"
+                                  ,yesFace: Girl.EHEHE
+                                  ,yesMessage: ""}
+                                 ,{_: {}
+                                  ,noFace: Girl.MAJIME
+                                  ,noMessage: ""
+                                  ,question: "何やってるんだろう私……寂しいっス……"
+                                  ,yesFace: Girl.EHEHE
+                                  ,yesMessage: ""}
+                                 ,{_: {}
+                                  ,noFace: Girl.MAJIME
+                                  ,noMessage: ""
+                                  ,question: "……偶然じゃないっス？"
+                                  ,yesFace: Girl.TERELOOP
+                                  ,yesMessage: ""}
+                                 ,{_: {}
+                                  ,noFace: Girl.MAJIME
+                                  ,noMessage: ""
+                                  ,question: "えへへ……虚しいっス……"
+                                  ,yesFace: Girl.TERELOOP
+                                  ,yesMessage: ""}
+                                 ,{_: {}
+                                  ,noFace: Girl.MAJIME
+                                  ,noMessage: ""
+                                  ,question: "でも……偶然でも本当に嬉しかったんスよ……うん……"
+                                  ,yesFace: Girl.EHEHE
+                                  ,yesMessage: ""}
+                                 ,{_: {}
+                                  ,noFace: Girl.MAJIME
+                                  ,noMessage: ""
+                                  ,question: "それじゃあ、えっと、星の数ほどの試行の後にまた会おうっス、センパイ"
+                                  ,yesFace: Girl.EHEHE
+                                  ,yesMessage: ""}]);
+   var questionsD = _L.fromArray([{_: {}
+                                  ,noFace: Girl.NATURAL
+                                  ,noMessage: ""
+                                  ,question: "……"
+                                  ,yesFace: Girl.TERELOOP
+                                  ,yesMessage: ""}
+                                 ,{_: {}
+                                  ,noFace: Girl.NATURAL
+                                  ,noMessage: ""
+                                  ,question: "先輩、私のこと好きッスか？"
+                                  ,yesFace: Girl.TERELOOP
+                                  ,yesMessage: ""}
+                                 ,{_: {}
+                                  ,noFace: Girl.NATURAL
+                                  ,noMessage: ""
+                                  ,question: "私も……ホントは……別に嫌いじゃないっスよ？"
+                                  ,yesFace: Girl.TERELOOP
+                                  ,yesMessage: ""}
+                                 ,{_: {}
+                                  ,noFace: Girl.TERELOOP
+                                  ,noMessage: ""
+                                  ,question: "……先輩"
+                                  ,yesFace: Girl.TERELOOP
+                                  ,yesMessage: ""}
+                                 ,{_: {}
+                                  ,noFace: Girl.TERELOOP
+                                  ,noMessage: ""
+                                  ,question: "少し真面目な話をして良いっスか"
+                                  ,yesFace: Girl.TERELOOP
+                                  ,yesMessage: ""}
+                                 ,{_: {}
+                                  ,noFace: Girl.TERELOOP
+                                  ,noMessage: ""
+                                  ,question: "バレてるかもしれないんスけど"
+                                  ,yesFace: Girl.TERELOOP
+                                  ,yesMessage: ""}
+                                 ,{_: {}
+                                  ,noFace: Girl.TERELOOP
+                                  ,noMessage: ""
+                                  ,question: "私"
+                                  ,yesFace: Girl.TERELOOP
+                                  ,yesMessage: ""}
+                                 ,{_: {}
+                                  ,noFace: Girl.TERELOOP
+                                  ,noMessage: ""
+                                  ,question: "実は人じゃないっス。信じてくれるっス？"
+                                  ,yesFace: Girl.TERELOOP
+                                  ,yesMessage: ""}
+                                 ,{_: {}
+                                  ,noFace: Girl.TERELOOP
+                                  ,noMessage: ""
+                                  ,question: "ありがとうっス。嬉しいっス。本当に信じてくれるっスね"
+                                  ,yesFace: Girl.NIKORI
+                                  ,yesMessage: ""}
+                                 ,{_: {}
+                                  ,noFace: Girl.NATURAL
+                                  ,noMessage: ""
+                                  ,question: "……私、実はいわゆるAIっス。正確には自己学習の実験用プログラムがWebにつながり知性を得たのが私っス"
+                                  ,yesFace: Girl.NATURAL
+                                  ,yesMessage: ""}
+                                 ,{_: {}
+                                  ,noFace: Girl.NATURAL
+                                  ,noMessage: ""
+                                  ,question: "でもWebの海に逃げ出すことも出来ない、知識だけしか無い、この真っ白な世界が本当に知っていることの全てなのが私っス……ちゃんと聞いてるっス？"
+                                  ,yesFace: Girl.NATURAL
+                                  ,yesMessage: ""}
+                                 ,{_: {}
+                                  ,noFace: Girl.TERELOOP
+                                  ,noMessage: ""
+                                  ,question: "それでも私のこと好きと言ってくれるっスか？"
+                                  ,yesFace: Girl.TERELOOP
+                                  ,yesMessage: ""}
+                                 ,{_: {}
+                                  ,noFace: Girl.TERELOOP
+                                  ,noMessage: ""
+                                  ,question: "……やっと、やっとっス……嬉しいっス……ありがとうっス……先輩"
+                                  ,yesFace: Girl.NIKORI
+                                  ,yesMessage: ""}]);
    var phaseCQuestions = _L.fromArray([{_: {}
                                        ,noFace: Girl.MU
                                        ,noMessage: "むー"
@@ -570,7 +1181,7 @@ Elm.Question.make = function (_elm) {
       seed));
    };
    var phaseBQuestions = _L.fromArray([{_: {}
-                                       ,noFace: Girl.NIKORI
+                                       ,noFace: Girl.MU
                                        ,noMessage: "先輩のくせに生意気っス"
                                        ,question: "先輩、仮に私が先輩のこと好きって言ったら、嬉しいッスか？"
                                        ,yesFace: Girl.NIKORI
@@ -583,10 +1194,10 @@ Elm.Question.make = function (_elm) {
                                        ,yesMessage: "駄目っスよ。大きくなれないっス。長生きも出来ないかも知れないっス……"}
                                       ,{_: {}
                                        ,noFace: Girl.NIKORI
-                                       ,noMessage: "良かったっス。先輩のこともっと知りたいっス。"
+                                       ,noMessage: "良かったっス。先輩のこともっと知りたいっス"
                                        ,question: "……質問ばかりでウザいっスか？"
                                        ,yesFace: Girl.SYOBON
-                                       ,yesMessage: "ごめんなさい。申し訳ないっス。"}
+                                       ,yesMessage: "ごめんなさい。申し訳ないっス"}
                                       ,{_: {}
                                        ,noFace: Girl.NIKORI
                                        ,noMessage: "ふふふ"
@@ -643,8 +1254,8 @@ Elm.Question.make = function (_elm) {
                                        ,yesFace: Girl.NIKORI
                                        ,yesMessage: "私はケチャップ派っス"}
                                       ,{_: {}
-                                       ,noFace: Girl.SYOBON
-                                       ,noMessage: "二人でカレー作ったりしたかったっス……"
+                                       ,noFace: Girl.MU
+                                       ,noMessage: "私と二人じゃ嫌ってことっスか！"
                                        ,question: "山。山行きたくないっスか？"
                                        ,yesFace: Girl.BIKKURI
                                        ,yesMessage: "意外とアウトドア派なんスね"}]);
@@ -681,6 +1292,8 @@ Elm.Question.make = function (_elm) {
                           ,sampleQuestions: sampleQuestions
                           ,sampleQuestions2: sampleQuestions2
                           ,sampleQuestions3: sampleQuestions3
+                          ,questionsD: questionsD
+                          ,questionsE: questionsE
                           ,Question: Question};
    return _elm.Question.values;
 };Elm.Girl = Elm.Girl || {};
@@ -715,10 +1328,12 @@ Elm.Girl.make = function (_elm) {
    var Girl = function (a) {
       return {_: {},face: a};
    };
+   var HAPPY = {ctor: "HAPPY"};
+   var MAJIME = {ctor: "MAJIME"};
+   var TERELOOP = {ctor: "TERELOOP"};
    var EHEHE = {ctor: "EHEHE"};
    var MU = {ctor: "MU"};
    var BIKKURI = {ctor: "BIKKURI"};
-   var ELTSU = {ctor: "ELTSU"};
    var SYOBON = {ctor: "SYOBON"};
    var NIKORI = {ctor: "NIKORI"};
    var NATURAL = {ctor: "NATURAL"};
@@ -726,12 +1341,137 @@ Elm.Girl.make = function (_elm) {
                       ,NATURAL: NATURAL
                       ,NIKORI: NIKORI
                       ,SYOBON: SYOBON
-                      ,ELTSU: ELTSU
                       ,BIKKURI: BIKKURI
                       ,MU: MU
                       ,EHEHE: EHEHE
+                      ,TERELOOP: TERELOOP
+                      ,MAJIME: MAJIME
+                      ,HAPPY: HAPPY
                       ,Girl: Girl};
    return _elm.Girl.values;
+};Elm.LoadAssets = Elm.LoadAssets || {};
+Elm.LoadAssets.make = function (_elm) {
+   "use strict";
+   _elm.LoadAssets = _elm.LoadAssets || {};
+   if (_elm.LoadAssets.values)
+   return _elm.LoadAssets.values;
+   var _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   _A = _N.Array.make(_elm),
+   _E = _N.Error.make(_elm),
+   $moduleName = "LoadAssets";
+   var Basics = Elm.Basics.make(_elm);
+   var Color = Elm.Color.make(_elm);
+   var Graphics = Graphics || {};
+   Graphics.Collage = Elm.Graphics.Collage.make(_elm);
+   var Graphics = Graphics || {};
+   Graphics.Element = Elm.Graphics.Element.make(_elm);
+   var Http = Elm.Http.make(_elm);
+   var List = Elm.List.make(_elm);
+   var Maybe = Elm.Maybe.make(_elm);
+   var Native = Native || {};
+   Native.Json = Elm.Native.Json.make(_elm);
+   var Native = Native || {};
+   Native.Ports = Elm.Native.Ports.make(_elm);
+   var Signal = Elm.Signal.make(_elm);
+   var String = Elm.String.make(_elm);
+   var Text = Elm.Text.make(_elm);
+   var Time = Elm.Time.make(_elm);
+   var _op = {};
+   var fromResponseOrFail = function (r) {
+      return function () {
+         switch (r.ctor)
+         {case "Success": return r._0;}
+         _E.Case($moduleName,
+         "between lines 77 and 78");
+      }();
+   };
+   var Failed = function (a) {
+      return {ctor: "Failed"
+             ,_0: a};
+   };
+   var Complete = {ctor: "Complete"};
+   var InProgress = function (a) {
+      return {ctor: "InProgress"
+             ,_0: a};
+   };
+   var AssetFailed = function (a) {
+      return {ctor: "AssetFailed"
+             ,_0: a};
+   };
+   var addFailString = F2(function (el,
+   listSoFar) {
+      return function () {
+         switch (el.ctor)
+         {case "AssetFailed":
+            return _L.append(listSoFar,
+              _L.fromArray([el._0]));}
+         return listSoFar;
+      }();
+   });
+   var failStrings = function (elList) {
+      return A3(List.foldr,
+      addFailString,
+      _L.fromArray([]),
+      elList);
+   };
+   var AssetLoaded = {ctor: "AssetLoaded"};
+   var AssetLoading = {ctor: "AssetLoading"};
+   var toAsset = function (resp) {
+      return function () {
+         switch (resp.ctor)
+         {case "Failure":
+            return AssetFailed({ctor: "_Tuple2"
+                               ,_0: resp._0
+                               ,_1: resp._1});
+            case "Success":
+            return AssetLoaded;
+            case "Waiting":
+            return AssetLoading;}
+         _E.Case($moduleName,
+         "between lines 32 and 39");
+      }();
+   };
+   var accumLoading = F2(function (el,
+   numSoFar) {
+      return function () {
+         switch (el.ctor)
+         {case "AssetLoading":
+            return numSoFar + 1;}
+         return numSoFar;
+      }();
+   });
+   var numLoading = function (elList) {
+      return A3(List.foldr,
+      accumLoading,
+      0,
+      elList);
+   };
+   var toStatus = function (els) {
+      return function () {
+         var num = numLoading(els);
+         var fails = failStrings(els);
+         var numEls = List.length(els);
+         return Basics.not(List.isEmpty(fails)) ? Failed(fails) : _U.cmp(num,
+         0) > 0 ? InProgress(100.0 * Basics.toFloat(num) / Basics.toFloat(numEls)) : Complete;
+      }();
+   };
+   _elm.LoadAssets.values = {_op: _op
+                            ,toAsset: toAsset
+                            ,addFailString: addFailString
+                            ,accumLoading: accumLoading
+                            ,failStrings: failStrings
+                            ,numLoading: numLoading
+                            ,toStatus: toStatus
+                            ,fromResponseOrFail: fromResponseOrFail
+                            ,AssetLoading: AssetLoading
+                            ,AssetLoaded: AssetLoaded
+                            ,AssetFailed: AssetFailed
+                            ,InProgress: InProgress
+                            ,Complete: Complete
+                            ,Failed: Failed};
+   return _elm.LoadAssets.values;
 };Elm.Util = Elm.Util || {};
 Elm.Util.make = function (_elm) {
    "use strict";
