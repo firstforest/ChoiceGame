@@ -305,7 +305,7 @@ displayOpeningPhase game =
   flow down [ spacer width 150
             , container width 20 middle (toText "「いいえ、その答えは\"はい\"です」" |> bold |> centered)
             , displayRanking
-            , container width 50 middle (displayButton decision.handle (Button "はじめる" NEXT))
+            , container width 50 middle (displayButton decision.handle (Button "Hello!" NEXT))
             ]
 
 displayEndingPhase : Game -> Element
@@ -324,7 +324,6 @@ displayLoading : Float -> Element
 displayLoading p =
   flow down [ container width 320 middle
                             ((toText ("NowLoading... " ++ (show (round p)) ++ "/100")) |> bold |> centered)
-            , container width 20 middle (plainText "Thank you for playing!")
             ]
   
 display : Game -> Element
@@ -358,11 +357,15 @@ status : Signal Status
 status = lift toStatus assets
 
 startGame : Input -> Game -> Game
-startGame ({status} as input) game =
-  case status of
-    Complete -> stepGame input { game | phase <- OPENING }
-    InProgress p -> { game | phase <- LOADING (100 - p)}
-    _ -> game
+startGame ({status} as input) ({phase} as game) =
+  case phase of
+    LOADING _ ->
+        case status of
+          Complete -> stepGame input { game | phase <- OPENING }
+          InProgress p -> { game | phase <- LOADING (100 - p)}
+          _ -> game
+    _ ->
+      stepGame input game
 
 gameState = foldp startGame defaultGame input
 
