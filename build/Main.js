@@ -57,6 +57,7 @@ Elm.ChoiceGame.make = function (_elm) {
    var status = A2(Signal.lift,
    LoadAssets.toStatus,
    assets);
+   var thanksMessage = "\nThank you for playing!\n\n……え……得点っスか？\nあれは飾りっス。あった方が干渉して\nくれる確率が上がるかなぁと思って……\nえへへ……\n";
    var scoreMessage = function (game) {
       return _L.append("遊んでくれてありがとうっス、センパイ。\n",
       _L.append(String.show(game.score),
@@ -770,7 +771,7 @@ Elm.ChoiceGame.make = function (_elm) {
    width,
    150,
    Graphics.Element.middle,
-   Text.markdown("<div style=\"height:0;width:0;\">&nbsp;</div><ul>\n<li>su_pa_ : 849点</li>\n<li>firstforest : 799点</li>\n<li>AAA : 756点</li>\n</ul><div style=\"height:0;width:0;\">&nbsp;</div>",
+   Text.markdown("<div style=\"height:0;width:0;\">&nbsp;</div><ul>\n<li>su_pa_ : 849点</li>\n<li>firstforest : 799点</li>\n<li>n_pennel : 756点</li>\n</ul><div style=\"height:0;width:0;\">&nbsp;</div>",
    "312:30"));
    var displayOpeningPhase = function (game) {
       return A2(Graphics.Element.flow,
@@ -796,14 +797,14 @@ Elm.ChoiceGame.make = function (_elm) {
    Graphics.Element.down,
    _L.fromArray([A4(Graphics.Element.container,
                 width,
-                320,
+                300,
                 Graphics.Element.middle,
                 Text.centered(Text.bold(Text.toText("「いいえ、その答えは\"はい\"です」\n\n完"))))
                 ,A4(Graphics.Element.container,
                 width,
-                20,
+                180,
                 Graphics.Element.middle,
-                Text.plainText("Thank you for playing!"))]));
+                Text.centered(Text.toText(thanksMessage)))]));
    var displayLoading = function (p) {
       return A2(Graphics.Element.flow,
       Graphics.Element.down,
@@ -881,6 +882,7 @@ Elm.ChoiceGame.make = function (_elm) {
                             ,displayRanking: displayRanking
                             ,displayOpeningPhase: displayOpeningPhase
                             ,displayEndingPhase: displayEndingPhase
+                            ,thanksMessage: thanksMessage
                             ,displayEND: displayEND
                             ,displayLoading: displayLoading
                             ,display: display
