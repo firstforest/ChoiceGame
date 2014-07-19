@@ -312,7 +312,7 @@ displayRanking =
   container width 150 middle [markdown|
 * su_pa_ : 849点
 * firstforest : 799点
-* AAA : 756点
+* n_pennel : 756点
 |]
 
 displayOpeningPhase : Game -> Element
@@ -329,10 +329,20 @@ displayEndingPhase game =
          , displayEndingMessage game
          ]
 
+
+thanksMessage = """
+Thank you for playing!
+
+……え……得点っスか？
+あれは飾りっス。あった方が干渉して
+くれる確率が上がるかなぁと思って……
+えへへ……
+"""
+
 displayEND : Element
 displayEND =
-  flow down [ container width 320 middle (toText "「いいえ、その答えは\"はい\"です」\n\n完" |> bold |> centered)
-            , container width 20 middle (plainText "Thank you for playing!")
+  flow down [ container width 300 middle (toText "「いいえ、その答えは\"はい\"です」\n\n完" |> bold |> centered)
+              , container width 180 middle (toText thanksMessage |> centered)
             ]
 
 displayLoading : Float -> Element
