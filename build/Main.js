@@ -85,7 +85,7 @@ Elm.ChoiceGame.make = function (_elm) {
             case "TERELOOP":
             return "img/tereloop.gif";}
          _E.Case($moduleName,
-         "between lines 230 and 239");
+         "between lines 231 and 240");
       }();
    };
    var colorButton = F2(function (c,
@@ -314,7 +314,9 @@ Elm.ChoiceGame.make = function (_elm) {
                var _v15 = _v12.phase;
                switch (_v15.ctor)
                {case "ENDING": return true;
-                  case "GAMEOVER": return true;
+                  case "GAMEOVER":
+                  return _U.eq(_v11.decision,
+                    NEXT);
                   case "OPENING":
                   return _U.eq(_v11.decision,
                     NEXT);
@@ -541,18 +543,16 @@ Elm.ChoiceGame.make = function (_elm) {
                              case "NO":
                              return _U.eq(_v26.phase,
                                D) || _U.eq(_v26.phase,
-                               E) ? _U.replace([["state"
-                                                ,ANSWER]
-                                               ,["phase",GAMEOVER]
-                                               ,["message"
-                                                ,"……そうっスか。ここで「いいえ」と言われたらおしまいっス。……やっぱダメだったスかぁ。先輩、また今度っス"]],
-                               _v26) : _U.replace([["state"
-                                                   ,ANSWER]
-                                                  ,["message"
-                                                   ,_v26.currentQuestion.noMessage]
-                                                  ,["isClick",true]
-                                                  ,["score",nextScore]
-                                                  ,["yesnum",0]],
+                               E) ? A2(nextGame,
+                               _v25.userInput,
+                               _U.replace([["phase",GAMEOVER]],
+                               _v26)) : _U.replace([["state"
+                                                    ,ANSWER]
+                                                   ,["message"
+                                                    ,_v26.currentQuestion.noMessage]
+                                                   ,["isClick",true]
+                                                   ,["score",nextScore]
+                                                   ,["yesnum",0]],
                                _v26);
                              case "NONE": return _v26;
                              case "YES":
@@ -572,11 +572,11 @@ Elm.ChoiceGame.make = function (_elm) {
                                                    ,["yesnum",_v26.yesnum + 1]],
                                _v26);}
                           _E.Case($moduleName,
-                          "between lines 169 and 182");
+                          "between lines 169 and 183");
                        }();
                     }();}
                _E.Case($moduleName,
-               "between lines 164 and 183");
+               "between lines 164 and 184");
             }();
          }();
       }();
@@ -772,7 +772,7 @@ Elm.ChoiceGame.make = function (_elm) {
    150,
    Graphics.Element.middle,
    Text.markdown("<div style=\"height:0;width:0;\">&nbsp;</div><ul>\n<li>su_pa_ : 849点</li>\n<li>firstforest : 799点</li>\n<li>n_pennel : 756点</li>\n</ul><div style=\"height:0;width:0;\">&nbsp;</div>",
-   "312:30"));
+   "313:30"));
    var displayOpeningPhase = function (game) {
       return A2(Graphics.Element.flow,
       Graphics.Element.down,
@@ -816,6 +816,26 @@ Elm.ChoiceGame.make = function (_elm) {
       _L.append(String.show(Basics.round(p)),
       "/100"))))))]));
    };
+   var displayGameOver = Graphics.Element.layers(_L.fromArray([displayGirl({_: {}
+                                                                           ,face: Girl.EHEHE})
+                                                              ,A2(Graphics.Element.flow,
+                                                              Graphics.Element.down,
+                                                              _L.fromArray([A2(Graphics.Element.spacer,
+                                                                           width,
+                                                                           320)
+                                                                           ,displayMessage("……そうっスか。ここで「いいえ」と言われたらおしまいっス。……やっぱダメだったスかぁ。先輩、また今度っス")
+                                                                           ,A2(Graphics.Element.spacer,
+                                                                           width,
+                                                                           5)
+                                                                           ,A4(Graphics.Element.container,
+                                                                           width,
+                                                                           50,
+                                                                           Graphics.Element.middle,
+                                                                           A2(displayButton,
+                                                                           decision.handle,
+                                                                           A2(Button,
+                                                                           "……また今度",
+                                                                           NEXT)))]))]));
    var display = function (_v44) {
       return function () {
          return function () {
@@ -824,6 +844,8 @@ Elm.ChoiceGame.make = function (_elm) {
             {case "END": return displayEND;
                case "ENDING":
                return displayEndingPhase(_v44);
+               case "GAMEOVER":
+               return displayGameOver;
                case "LOADING":
                return displayLoading(_v46._0);
                case "OPENING":
@@ -885,6 +907,7 @@ Elm.ChoiceGame.make = function (_elm) {
                             ,thanksMessage: thanksMessage
                             ,displayEND: displayEND
                             ,displayLoading: displayLoading
+                            ,displayGameOver: displayGameOver
                             ,display: display
                             ,input: input
                             ,responses: responses
