@@ -124,6 +124,7 @@ stepQuestion game =
 updateQuestion : Game -> Game
 updateQuestion game =
   case game.phase of
+    OPENING -> game
     SCORE -> game
     ENDING -> game
     GAMEOVER -> game
