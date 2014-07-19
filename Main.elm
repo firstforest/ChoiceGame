@@ -88,7 +88,7 @@ stepState { seed } game =
       E -> { game | phase <- SCORE }
       SCORE -> { game | phase <- ENDING, state <- QUESTION }
       ENDING -> { game | phase <- END }
-      GAMEOVER -> defaultGame
+      GAMEOVER -> { defaultGame | phase <- OPENING }
       _ -> game
 
 isUpdateNeed : UserInput -> Game -> Bool
@@ -163,7 +163,7 @@ updateGame ({ userInput , point } as input) ({ currentQuestion } as game) =
               else { game | state <- ANSWER, message <- currentQuestion.yesMessage, isClick <- True, score <- nextScore, yesnum <- (game.yesnum + 1)  }
           NO ->
               if game.phase == D || game.phase == E
-              then { game | phase <- GAMEOVER, message <- "……そうっスか。ここで「いいえ」と言われたらおしまいっス。……やっぱダメだったスかぁ。先輩、また今度っス" }
+              then { game | state <- ANSWER, phase <- GAMEOVER, message <- "……そうっスか。ここで「いいえ」と言われたらおしまいっス。……やっぱダメだったスかぁ。先輩、また今度っス" }
               else 
                   { game | state <- ANSWER, message <- currentQuestion.noMessage, isClick <- True, score <- nextScore, yesnum <- 0 }
           NONE ->
