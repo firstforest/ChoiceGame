@@ -65,13 +65,21 @@ stepGirl input question girl =
     NO -> { girl | face <- question.noFace }
     NONE -> { girl | face <- NATURAL }
 
+questionGirl : Game -> Girl
+questionGirl {currentQuestion, girl, phase} =
+  if phase == D || phase == E
+  then
+      { girl | face <- currentQuestion.yesFace }
+  else
+      { girl | face <- NATURAL }
+
 updateGirl : Input -> Game -> Game
 updateGirl { userInput } ({ currentQuestion, girl, state } as game) =
   let
       nextGirl =
           case state of
             ANSWER -> stepGirl userInput currentQuestion girl
-            QUESTION -> { girl | face <- NATURAL }
+            QUESTION -> questionGirl game
   in
     { game | girl <- nextGirl }
 
@@ -129,6 +137,7 @@ updateQuestion game =
     ENDING -> game
     GAMEOVER -> game
     _ -> stepQuestion game
+
 nextGame : UserInput -> Game -> Game
 nextGame userInput = updateQuestion . ( updateState userInput )
 
@@ -225,6 +234,9 @@ getGirlSrc face =
     BIKKURI -> "img/bikkuri.gif"
     MU -> "img/mu.gif"
     EHEHE -> "img/ehehe.gif"
+    TERELOOP -> "img/tereloop.gif"
+    MAJIME -> "img/majime.gif"
+    HAPPY -> "img/ending.gif"
 
 displayGirl : Girl -> Element
 displayGirl girl = image width height (getGirlSrc girl.face)
@@ -284,14 +296,16 @@ displayScorePhase game =
 
 displayEndingMessage : Game -> Element
 displayEndingMessage { userName } =
-  flow down [ spacer width 320
-            , displayMessage ("……今なんて言ったっス？\n「"
+  layers [ displayGirl {face = HAPPY}
+         , flow down [ spacer width 320
+                     , displayMessage ("……今なんて言ったっス？\n「"
                                ++ userName.string
                                ++ "」……？\n"
                                ++ "そう言ったっス？　そう言ったっスか!?\n"
                                ++ "ふへ……ふへへ……こんにちはっス！")
-            , container width 50 middle (displayButton decision.handle (Button "こんにちは！" NEXT))
-            ]
+                     , container width 50 middle (displayButton decision.handle (Button "こんにちは！" NEXT))
+                     ]
+         ]
 
 displayRanking : Element
 displayRanking =
@@ -349,6 +363,9 @@ responses = combine (map (sendGet . constant)
                              , "img/syobon.gif"
                              , "img/nikori.gif"
                              , "img/mu.gif"
+                             , "img/tereloop.gif"
+                             , "img/majime.gif"
+                             , "img/ending.gif"
                              ])
 
 assets : Signal [Asset]
