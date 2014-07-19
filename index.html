@@ -1,49 +1,125 @@
 <html>
 <head>
-	<title>Choice Game</title>
-	<meta charset="utf-8">
-	<script type="text/javascript" src="http://elm-lang.org/elm-runtime.js"></script>
-	<script type="text/javascript" src="build/Main.js"></script>
+    <title>Choice Game</title>
+    <meta charset="utf-8">
+    <script type="text/javascript" src="http://elm-lang.org/elm-runtime.js"></script>
+    <script type="text/javascript" src="build/Main.js"></script>
+    <script type="text/javascript" src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <style>
+        h1 {
+            margin: 1rem;
+            font-size: 1.5rem;
+            padding: 1rem;
+            text-align: center;
+            color: #003300;
+        }
+
+        h2 {
+            color: #003300;
+        }
+
+        #main {
+            margin: 0 auto;
+        }
+
+        #desc {
+            border: 1px solid #000000;
+            padding: 0.5rem;
+            margin: 2rem;
+        }
+    </style>
 </head>
 
-  <body>
-    <h1>ChoiceGame</h1>
-    <div id="main" style="width:320px; height:480px;"></div>
-  </body>
- 
-  <script type="text/javascript">
+<body>
+<h1>「いいえ、その答えは"はい"です」</h1>
+
+<div id="main" style="width:320px; height:480px;"></div>
+
+<div id="desc">
+    <p>
+        個人的にブームが来ているプログラミング言語<a href="http://elm-lang.org/">Elm</a>の習作です。
+        彼女の2択に答えるだけのゲームのような何かです。
+    </p>
+
+    <h2>使用素材</h2>
+
+    <p>
+        以下の素材を使わせて頂いています。
+        楽曲素材の権利は各作者様にあります。(敬称略)<br/>
+        無断利用等はなさらないでください。
+    </p>
+    <ul>
+        <li>BGM: <a href="http://dova-s.jp/bgm/play471.html">涼しい昼下がりのそぞろ速歩き</a></li>
+        <li>BGM2: <a href="http://dova-s.jp/bgm/play225.html">フォークロア</a></li>
+        <li>Click音: <a href="http://taira-komori.jpn.org/">小森平の使い方</a></li>
+        <li>レベルアップ音: <a href="http://on-jin.com/">On-Jin~音人~</a></li>
+    </ul>
+
+    <p>
+      作った人:<a href="http://twitter.com/firstforest">@firstforest</a><br>
+      <a href="https://github.com/firstforest/ChoiceGame">ソースコード</a>
+    </p>
+</div>
+</body>
+
+<script type="text/javascript">
     var mainDiv = document.getElementById('main');
     var choiceGame = Elm.embed(Elm.ChoiceGame, mainDiv);
-    var music = new Audio();
-    music.src = "music/bgm.mp3";
-    
-    function playMusic (isPlay) {
-    	if (isPlay) {
-    		music.play();
-    	}
+    var bgm1 = new Audio();
+    bgm1.src = "music/bgm.mp3";
+    bgm1.loop = true;
+    var bgm2 = new Audio();
+    bgm2.src = "music/bgm2.mp3";
+    bgm2.loop = true;
+    var isBgm2Playing = false;
+
+    function playMusic(bgm) {
+        switch (bgm) {
+            case "BGM1":
+                bgm1.volume = 1;
+                bgm1.play();
+                break;
+            case "BGM2":
+                if (!isBgm2Playing) {
+                    $(bgm1).animate({volume:0}, 2000);
+                    setTimeout(function(){
+                                bgm1.pause();
+                                bgm1.currentTime = 0;
+                                bgm2.volume = 0;
+                                bgm2.play();
+                                $(bgm2).animate({volume:1}, 3000);
+                    }, 2000);
+                    isBgm2Playing = true;
+                }
+                break;
+            case "None":
+                bgm2.pause();
+                break;
+            default :
+        }
     }
-    
+
     var click = new Audio();
     click.src = "music/click.mp3";
-    
-    function playClickSound (isClick) {
-    	if (isClick) {
-    		click.play();
-    	}
+
+    function playClickSound(isClick) {
+        if (isClick) {
+            click.play();
+        }
     }
 
     var levelUp = new Audio();
     levelUp.src = "music/levelup.mp3";
 
-    function playLevelUpSound (isLevelUp) {
+    function playLevelUpSound(isLevelUp) {
         if (isLevelUp) {
             levelUp.play();
         }
     }
- 
-	choiceGame.ports.jsMusicPlay.subscribe(playMusic);
-	choiceGame.ports.jsPlayClickSound.subscribe(playClickSound);
+
+    choiceGame.ports.jsMusicPlay.subscribe(playMusic);
+    choiceGame.ports.jsPlayClickSound.subscribe(playClickSound);
     choiceGame.ports.jsPlayLevelUpSound.subscribe(playLevelUpSound);
-    
-  </script>
+
+</script>
 </html>
