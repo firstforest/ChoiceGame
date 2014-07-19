@@ -50,7 +50,7 @@ defaultGame = {
     yesFace = NIKORI,
     noMessage = "聞こえてるじゃないっスか",
     noFace = NIKORI },
-  bgm = "BGM1",
+  bgm = "None",
   isClick = False,
   isLevelUp = False,
   score = 0,
@@ -87,14 +87,13 @@ stepState : UserInput -> Game -> Game
 stepState { seed } game =
     case game.phase of
       -- PROLOGUEの問題設定などはdefaultGameで行っているためここではphaseの変更のみ
-      OPENING -> { game | phase <- PROLOGUE }
+      OPENING -> { game | phase <- PROLOGUE, bgm <- "BGM1" }
       PROLOGUE -> { game | phase <- A, questions <- sampleQuestions seed, isLevelUp <- True }
       A -> { game | phase <- B, questions <- sampleQuestions2 seed, isLevelUp <- True }
       B -> { game | phase <- C, questions <- sampleQuestions3 seed, isLevelUp <- True }
       C -> { game | phase <- D, questions <- questionsD, isLevelUp <- True , bgm <- "BGM2"}
       D -> { game | phase <- E, questions <- questionsE, isLevelUp <- True , bgm <- "None" }
       E -> { game | phase <- SCORE }
-      SCORE -> { game | phase <- ENDING, state <- QUESTION }
       ENDING -> { game | phase <- END }
       GAMEOVER -> { defaultGame | phase <- OPENING }
       _ -> game
