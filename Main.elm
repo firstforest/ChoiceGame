@@ -105,7 +105,7 @@ isUpdateNeed { decision } { phase, questions } =
     OPENING -> (decision == NEXT)
     SCORE -> (decision == NEXT)
     ENDING -> True
-    GAMEOVER -> True
+    GAMEOVER -> (decision == NEXT)
     _ -> (isEmpty questions)
 
 updateState : UserInput -> Game -> Game
@@ -173,7 +173,8 @@ updateGame ({ userInput , point } as input) ({ currentQuestion } as game) =
               else { game | state <- ANSWER, message <- currentQuestion.yesMessage, isClick <- True, score <- nextScore, yesnum <- (game.yesnum + 1)  }
           NO ->
               if game.phase == D || game.phase == E
-              then { game | state <- ANSWER, phase <- GAMEOVER, message <- "……そうっスか。ここで「いいえ」と言われたらおしまいっス。……やっぱダメだったスかぁ。先輩、また今度っス" }
+              then
+                  nextGame userInput { game | phase <- GAMEOVER }
               else 
                   { game | state <- ANSWER, message <- currentQuestion.noMessage, isClick <- True, score <- nextScore, yesnum <- 0 }
           NONE ->
@@ -329,7 +330,6 @@ displayEndingPhase game =
          , displayEndingMessage game
          ]
 
-
 thanksMessage = """
 Thank you for playing!
 
@@ -350,7 +350,18 @@ displayLoading p =
   flow down [ container width 320 middle
                             ((toText ("NowLoading... " ++ (show (round p)) ++ "/100")) |> bold |> centered)
             ]
-  
+
+displayGameOver : Element
+displayGameOver =
+  layers [ displayGirl { face = EHEHE }
+         , flow down [ spacer width 320
+                     , displayMessage ("……そうっスか。ここで「いいえ」と言われたらおしまいっス。……やっぱダメだったスかぁ。先輩、また今度っス")
+                     , spacer width 5
+                     , container width 50 middle (displayButton decision.handle (Button "……また今度" NEXT))
+                     ]
+         ]
+
+
 display : Game -> Element
 display ({ girl } as game) =
   case game.phase of
@@ -359,6 +370,7 @@ display ({ girl } as game) =
     SCORE -> displayScorePhase game
     ENDING -> displayEndingPhase game
     END -> displayEND
+    GAMEOVER -> displayGameOver
     _ -> layers [
           displayGirl girl,
           displayUI game] |> Graphics.Input.clickable decision.handle NONE
