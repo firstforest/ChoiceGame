@@ -94,6 +94,7 @@ stepState { seed } game =
       C -> { game | phase <- D, questions <- questionsD, isLevelUp <- True , bgm <- "BGM2"}
       D -> { game | phase <- E, questions <- questionsE, isLevelUp <- True , bgm <- "None" }
       E -> { game | phase <- SCORE }
+      SCORE -> { game | phase <- ENDING, state <- QUESTION, isLevelUp <- True, bgm <- "BGM1" }
       ENDING -> { game | phase <- END }
       GAMEOVER -> { defaultGame | phase <- OPENING }
       _ -> game

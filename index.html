@@ -76,6 +76,7 @@
     function playMusic(bgm) {
         switch (bgm) {
             case "BGM1":
+                bgm1.volume = 1;
                 bgm1.play();
                 break;
             case "BGM2":
@@ -83,6 +84,7 @@
                     $(bgm1).animate({volume:0}, 2000);
                     setTimeout(function(){
                                 bgm1.pause();
+                                bgm1.currentTime = 0;
                                 bgm2.volume = 0;
                                 bgm2.play();
                                 $(bgm2).animate({volume:1}, 3000);
