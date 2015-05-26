@@ -3,6 +3,10 @@
 
 ただただ彼女の二択に応えるゲーム（？）
 
+遊ぶ
+----
+[こちら](https://firstforest.github.io/ChoiceGame)からどうぞ
+
 使用ツール
 --------
 * [Elm](http://elm-lang.org/)
